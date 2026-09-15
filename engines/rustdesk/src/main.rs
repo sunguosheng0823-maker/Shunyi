@@ -25,7 +25,7 @@ async fn main() {
                     &mut stdout,
                     &(
                         Header::Error {
-                            message: error.to_string(),
+                        message: format!("{error:#}"),
                         },
                         vec![],
                     ),

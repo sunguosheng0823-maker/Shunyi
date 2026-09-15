@@ -72,7 +72,7 @@ assert manifests, "No native build manifests found"
 for path in manifests:
     build = json.loads(path.read_text(encoding="utf-8")); root = path.parent.resolve()
     for relative, digest in build["files"].items():
-        file = (root / relative).resolve()
+        file = (root / relative.replace("\\", "/")).resolve()
         assert file.is_relative_to(root), "Manifest path escapes its build directory"
         assert hashlib.sha256(file.read_bytes()).hexdigest() == digest, relative
     windows = "windows" in build["target"]

@@ -86,6 +86,6 @@ for pattern in patterns:
 with zipfile.ZipFile(out / ("Shunyi-Desktop-Preview-0.2.0-" + target + ".zip"), "w", zipfile.ZIP_DEFLATED) as archive:
     for file in sorted(portable.rglob("*")):
         if file.is_file(): archive.write(file, file.relative_to(portable.parent))
-manifest = {str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob("*") if p.is_file() and p.name != "BUILD.json"}
+manifest = {p.relative_to(out).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob("*") if p.is_file() and p.name != "BUILD.json"}
 (out / "BUILD.json").write_text(json.dumps({"target": target, "version": "0.2.0", "native_build": True, "files": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(json.dumps({"output": str(out), "target": target, "files": len(manifest)}, ensure_ascii=False))
