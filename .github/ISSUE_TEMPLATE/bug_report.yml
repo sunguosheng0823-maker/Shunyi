@@ -1,0 +1,43 @@
+name: 问题反馈 / Bug report
+description: 提供可复现的终端、连接或界面问题。
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "请先移除密码、证书私钥、中继令牌、身份文件和生产地址。安全漏洞请使用项目的私密漏洞报告渠道。"
+  - type: input
+    id: version
+    attributes:
+      label: 瞬移版本 / Version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 系统、CPU 架构与组件 / Environment
+      description: 例如 macOS + Apple Silicon 客户端，或 Linux x86_64 Agent。
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: 相关功能 / Connection type
+      options:
+        - 本地项目或终端
+        - SSH
+        - 连接证书
+        - 临时密码
+        - Agent 或中继
+        - 其他界面功能
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤、预期与实际结果 / Reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 脱敏后的错误与日志 / Sanitized logs
+      render: text

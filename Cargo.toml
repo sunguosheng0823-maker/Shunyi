@@ -1,0 +1,36 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/rc-core",
+    "crates/rc-access",
+    "crates/rc-server",
+    "crates/rc-agent",
+    "client/src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[workspace.dependencies]
+rc-core = { path = "crates/rc-core" }
+rc-access = { path = "crates/rc-access" }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+futures-util = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+
+# 设备凭据摘要与随机数
+sha2 = "0.10"
+rand = "0.8"
+base64 = "0.22"
+
+[profile.release]
+lto = "thin"
+strip = true

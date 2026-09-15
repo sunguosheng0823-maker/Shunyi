@@ -1,0 +1,887 @@
+[
+  {
+    "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+    "sha256": "c2961f2d1e40bd46e8c691427c62f39d4da4471bf8b557471beb53e51383b7b8",
+    "bytes": 1228
+  },
+  {
+    "path": ".github/ISSUE_TEMPLATE/config.yml",
+    "sha256": "c22a5d96cd7134d4eb0e36aa0fdce946bf1da20f261e3b91ddc3c2ec473067e5",
+    "bytes": 279
+  },
+  {
+    "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+    "sha256": "3305a1ddf4c9b340b41ae22817954c25ac7e1e5fc96919a3c4102f5c54b9bdb6",
+    "bytes": 533
+  },
+  {
+    "path": ".github/PULL_REQUEST_TEMPLATE.md",
+    "sha256": "aa9fac38960d8043ebe33c593f407288854d00c3a8131a5fbdb3cc776e3caa60",
+    "bytes": 228
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "cdf128c76af8e08a3e641b8450d8efe58ed026592453b3f3648cc8160d12e738",
+    "bytes": 1130
+  },
+  {
+    "path": ".gitignore",
+    "sha256": "1af1204b7941a235cb913086bebc2887ebd10c71f00b1a3f3a99ac379f57fecd",
+    "bytes": 274
+  },
+  {
+    "path": "CHANGELOG.md",
+    "sha256": "077f370c70cc12cd4abf2867c8caa26da6130bdd384a1c5b50b0561c0c42c60d",
+    "bytes": 1979
+  },
+  {
+    "path": "CONTEXT.md",
+    "sha256": "a8c09d3dbcfbe14f6502e7d01b076f492b32adaf4672c1afc4419751a2bfda96",
+    "bytes": 1713
+  },
+  {
+    "path": "CONTRIBUTING.md",
+    "sha256": "5dd152f68b85223c117f1e5ecc1436cf4d4790a6b126d52d0f6e9b9486eef115",
+    "bytes": 2307
+  },
+  {
+    "path": "Cargo.lock",
+    "sha256": "af03fc01abb412ba252639332686f42a913a9b257ab7b723ce61b51f7dcc4e9a",
+    "bytes": 160733
+  },
+  {
+    "path": "Cargo.toml",
+    "sha256": "63bf999f08c2a851fd05b41feae9968a0c5f46c481d0389d91a99fa932a5a77f",
+    "bytes": 756
+  },
+  {
+    "path": "ENCRYPTION.md",
+    "sha256": "fd19f642cb89c6b1e3c978269db634976034fd851fddeed7baa8811aa2e870b7",
+    "bytes": 619
+  },
+  {
+    "path": "LICENSE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "NOTICE",
+    "sha256": "d1399c85617ae50ae0e0c90c874957d141d99675ac64e157fc9e8a71f0ea3b0a",
+    "bytes": 523
+  },
+  {
+    "path": "README.en.md",
+    "sha256": "77ea3f9722af34cb1c045fec374615853ff2c136a20a673f87a47026ab9c76c3",
+    "bytes": 4092
+  },
+  {
+    "path": "README.md",
+    "sha256": "947c1eded8866f2e83ce21cfb7fb512e35da9bcbdf0e794e900d8642cdb170ad",
+    "bytes": 7547
+  },
+  {
+    "path": "SECURITY.md",
+    "sha256": "96d4bdbc6646875addf1fa29b81027360d5ab76c8bf6e48650f1755f5d7c29ef",
+    "bytes": 4770
+  },
+  {
+    "path": "client/src-tauri/Cargo.toml",
+    "sha256": "1f2c5c5f46f999a0c2abfbb1252a169ba81a4ef49c93cf3ff49a81616a34af70",
+    "bytes": 968
+  },
+  {
+    "path": "client/src-tauri/build.rs",
+    "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+    "bytes": 39
+  },
+  {
+    "path": "client/src-tauri/capabilities/default.json",
+    "sha256": "b96c3fdd03e7559409cdf6c01682f187a80624f19727e65a777fc711f605cdd6",
+    "bytes": 209
+  },
+  {
+    "path": "client/src-tauri/icons/128x128.png",
+    "sha256": "614ce6d94210a64054f7abef2a329b892560fe9ec409c59d20c36e6454a88e1a",
+    "bytes": 8051
+  },
+  {
+    "path": "client/src-tauri/icons/128x128@2x.png",
+    "sha256": "dd2912f3f6afe1266a799f6cfabd233a9ef4c0d4518d4a23bcb8dba60a40ad7a",
+    "bytes": 18671
+  },
+  {
+    "path": "client/src-tauri/icons/32x32.png",
+    "sha256": "3c4b61f52c4375b7ddd5cce54e3ce434b7e6c62377b9fdac12ecf4d827678546",
+    "bytes": 1488
+  },
+  {
+    "path": "client/src-tauri/icons/64x64.png",
+    "sha256": "cd6f87b38b59bb30d8bf977e146bcd1f83ac4378a7c33f7e9a06ad1cc6a6542b",
+    "bytes": 3453
+  },
+  {
+    "path": "client/src-tauri/icons/Square107x107Logo.png",
+    "sha256": "bafa39c4679a6b543cc5a51ce415ba455d71b99fc71d17baf8ffa4054a699840",
+    "bytes": 6371
+  },
+  {
+    "path": "client/src-tauri/icons/Square142x142Logo.png",
+    "sha256": "6a84a80a14912a6cab637d5376ceddbfc5f98c06de5aae11cbbdc9800e8331c2",
+    "bytes": 9022
+  },
+  {
+    "path": "client/src-tauri/icons/Square150x150Logo.png",
+    "sha256": "e71de32d54732ccfa15fd905918f9af98a3201e870e746d85073753b6117d4b2",
+    "bytes": 9556
+  },
+  {
+    "path": "client/src-tauri/icons/Square284x284Logo.png",
+    "sha256": "48725c24a6a7d25990f5e899e83159d45de6353856770b38da9f8e526929a877",
+    "bytes": 20899
+  },
+  {
+    "path": "client/src-tauri/icons/Square30x30Logo.png",
+    "sha256": "58f7612f413c27d6f6fc5ae78239041379bcd49794358b63619f7bb0555478ac",
+    "bytes": 1375
+  },
+  {
+    "path": "client/src-tauri/icons/Square310x310Logo.png",
+    "sha256": "623624fa632c4dc734730d3ad344024ac39ebe9f423a237e763259948a73e8f4",
+    "bytes": 23141
+  },
+  {
+    "path": "client/src-tauri/icons/Square44x44Logo.png",
+    "sha256": "a7e6243a080d0dcb21b67e2debbc39d473a2887142aec6ca3897ca3c1de6072f",
+    "bytes": 2213
+  },
+  {
+    "path": "client/src-tauri/icons/Square71x71Logo.png",
+    "sha256": "a60b5bdf179f841563766b539a7b7549dd918709ee159cf019a7cb910031c7fd",
+    "bytes": 3950
+  },
+  {
+    "path": "client/src-tauri/icons/Square89x89Logo.png",
+    "sha256": "a4e2d234b1f181ce161a1cfc0a591386edef19fcd24c550c0471615b6de19f08",
+    "bytes": 5098
+  },
+  {
+    "path": "client/src-tauri/icons/StoreLogo.png",
+    "sha256": "8317f3ab3830d213c21f7593f16ddb819c784fda58c1829c75571837c899642f",
+    "bytes": 2604
+  },
+  {
+    "path": "client/src-tauri/icons/alt-hexagon.svg",
+    "sha256": "70f121500224390ac1fda951e064b9cd9e3672d8820cd821a43eeae0a4ad36dd",
+    "bytes": 2442
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml",
+    "sha256": "760d4b8a06bf7163dd010c33ad2cac9e4a75fa0177afaba042f83e311eef0c3e",
+    "bytes": 261
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-hdpi/ic_launcher.png",
+    "sha256": "5c903d334182574aa0baabf23fdd316d2168ea44960a739d3b6c91705de796c4",
+    "bytes": 2204
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-hdpi/ic_launcher_foreground.png",
+    "sha256": "8b8c6a43493bb2366758d7dd89a061f6821ff3330f48d230f17e9f0778b3a426",
+    "bytes": 10528
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-hdpi/ic_launcher_round.png",
+    "sha256": "153326b82082af84508966eed654248d6960852dccd1703cc7611824b3ac7737",
+    "bytes": 2123
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-mdpi/ic_launcher.png",
+    "sha256": "662d8b87165184a0919abd5714f64ad7e56cfc74006ae3180b628a93b2bb9b49",
+    "bytes": 2130
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-mdpi/ic_launcher_foreground.png",
+    "sha256": "cf9d16683ce35d871705727261d819db99db11fbd0d4eb594251d36ad101b710",
+    "bytes": 6468
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-mdpi/ic_launcher_round.png",
+    "sha256": "a96d97a26dc27232542f43a371def5b6fa3dacadb9932a9d1d877b0e923879c6",
+    "bytes": 2058
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xhdpi/ic_launcher.png",
+    "sha256": "51a40f2847b78233a583f25f6d5f95d397dea9132bcf32cf68adc34c21c63c20",
+    "bytes": 5249
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_foreground.png",
+    "sha256": "48061dce47f714c0300ad2564b91570f311e1e25976235e501f6ca89d98c0366",
+    "bytes": 14819
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_round.png",
+    "sha256": "d7915fcb92c2220fc83f27414ec53a922928d4ea3279de850e9c0e0f3b5100cd",
+    "bytes": 4708
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher.png",
+    "sha256": "3ca429b759c1b211cbadb6652a21cf96f16d2666f5e47e018b64b1f63753437a",
+    "bytes": 8425
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_foreground.png",
+    "sha256": "316f8152f7366e0af1af695849dcf99960e37000fcef9f5a1cd174dbb0e19315",
+    "bytes": 24636
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_round.png",
+    "sha256": "a74f3179d67ed30ff75125bd67749ac26f4fd76575f0aa66dfbf08310f00261a",
+    "bytes": 7844
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher.png",
+    "sha256": "46ac1d0f8e90e6e0d53da50e9d62d38dcd198920ecd55e90425ad2483a62f627",
+    "bytes": 12153
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_foreground.png",
+    "sha256": "3d7dcf75d0c394a18701c161f40759d05ae857006c1edea8e1a0e9890d6fb425",
+    "bytes": 36120
+  },
+  {
+    "path": "client/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_round.png",
+    "sha256": "72fb468af9abedcc80a743c09838e6ff48cb1bbd8cff73d5c05aa085fadfc53f",
+    "bytes": 11103
+  },
+  {
+    "path": "client/src-tauri/icons/android/values/ic_launcher_background.xml",
+    "sha256": "0687336f0ccc6f7ee09c7c95110667c63b75931238df779a21af401fb864cd34",
+    "bytes": 115
+  },
+  {
+    "path": "client/src-tauri/icons/app-icon.png",
+    "sha256": "5f3fd0d278608fefa7bbe25b9ba12c81b79e30de15ac1e4d1f949d0a97e7ae0e",
+    "bytes": 102854
+  },
+  {
+    "path": "client/src-tauri/icons/icon.icns",
+    "sha256": "64d89aea3dc59d05301ddb833b5fd55016eb34638341df0749f293f9841dc37a",
+    "bytes": 244335
+  },
+  {
+    "path": "client/src-tauri/icons/icon.ico",
+    "sha256": "1e3b58ec678e6ab8f0f8764ae824fbb95c8d5e83aaa51539f7234494f5777e0d",
+    "bytes": 27876
+  },
+  {
+    "path": "client/src-tauri/icons/icon.png",
+    "sha256": "02f9acb55778c2507bea87e6d4951cb5e8f22a9538323f35ebb3c863db6aab8c",
+    "bytes": 48092
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-20x20@1x.png",
+    "sha256": "9872f6f4d8ce41fd25ae8c06d42bdea72d2df04bffc8173485845ec3a3ac0500",
+    "bytes": 846
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-20x20@2x-1.png",
+    "sha256": "a89ff84327e78d47e18579631b42110a1c659c1885ac3b3defca360a60bd9deb",
+    "bytes": 1969
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-20x20@2x.png",
+    "sha256": "a89ff84327e78d47e18579631b42110a1c659c1885ac3b3defca360a60bd9deb",
+    "bytes": 1969
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-20x20@3x.png",
+    "sha256": "f0b8c1306290c2d9908bda58710e550a6a174b6eace5643dd4bbdee518aa46ab",
+    "bytes": 3213
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-29x29@1x.png",
+    "sha256": "5a1a0e1d6d8d097fa59f2c9da03e7fabbd7b4bd319027864c1b32d5164308bce",
+    "bytes": 1325
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-29x29@2x-1.png",
+    "sha256": "c9b46d82cee04e3661e77d17a58fce7503569ddf592998fa2c74cbb1cbcd863c",
+    "bytes": 3007
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-29x29@2x.png",
+    "sha256": "c9b46d82cee04e3661e77d17a58fce7503569ddf592998fa2c74cbb1cbcd863c",
+    "bytes": 3007
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-29x29@3x.png",
+    "sha256": "06d733d4ab0336dde38a4462ad2e496359b4e4491fdd925aff5216c6245c75db",
+    "bytes": 4956
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-40x40@1x.png",
+    "sha256": "a89ff84327e78d47e18579631b42110a1c659c1885ac3b3defca360a60bd9deb",
+    "bytes": 1969
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-40x40@2x-1.png",
+    "sha256": "7bea346397e5f46b1df675b6e74fe254497f4579d82758a0b9062f57e6e02bc3",
+    "bytes": 4511
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-40x40@2x.png",
+    "sha256": "7bea346397e5f46b1df675b6e74fe254497f4579d82758a0b9062f57e6e02bc3",
+    "bytes": 4511
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-40x40@3x.png",
+    "sha256": "cb665e09dddb5502618dfcd9982cc228b9cc86806545b18d2333c783d0f1e30b",
+    "bytes": 7374
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-512@2x.png",
+    "sha256": "9042532a85b75d6309698ae4d88ba952f060b36a09f25b97bd8b4e0395b072e3",
+    "bytes": 94190
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-60x60@2x.png",
+    "sha256": "cb665e09dddb5502618dfcd9982cc228b9cc86806545b18d2333c783d0f1e30b",
+    "bytes": 7374
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-60x60@3x.png",
+    "sha256": "d98264bcd8df814cb7e119e21256241c5ad275098c97ab4281a7aa9ade6b42fb",
+    "bytes": 11874
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-76x76@1x.png",
+    "sha256": "de39cacbfd224f75eca4614910e2df64d7e716a4cbfeb39c3de61d92b438404f",
+    "bytes": 4245
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-76x76@2x.png",
+    "sha256": "446032cc80341e4ae284e350628aa61b390aee0a4d656de9de56847ee304ed1d",
+    "bytes": 9771
+  },
+  {
+    "path": "client/src-tauri/icons/ios/AppIcon-83.5x83.5@2x.png",
+    "sha256": "ac694a373c94c7005a0cdf1777b88f3dfcbb1cb3359d5a0bed2f6a6fa9779efe",
+    "bytes": 10915
+  },
+  {
+    "path": "client/src-tauri/icons/logo-source.png",
+    "sha256": "cb0819af4e678ac8fc9715ff7275096b1b8dfc647a418c66e3ccbb54a8333099",
+    "bytes": 47949
+  },
+  {
+    "path": "client/src-tauri/src/device.rs",
+    "sha256": "7a11a12faa2c4b4f0661e7a22d15cddec0637a03d716f75b7125226a32394cdf",
+    "bytes": 4061
+  },
+  {
+    "path": "client/src-tauri/src/fs.rs",
+    "sha256": "c85b08bbbd7010a1d755e145ab5e7e1f02d7cc01495616610613e90283270f7b",
+    "bytes": 2575
+  },
+  {
+    "path": "client/src-tauri/src/lib.rs",
+    "sha256": "aee6d0abbf3eeff747b1fe402fcee0eba7373e85d4e1a807d9d145387f7e70b0",
+    "bytes": 8183
+  },
+  {
+    "path": "client/src-tauri/src/main.rs",
+    "sha256": "e31692dd2b5638a729b5d1330c0105763d59979ba90f0de53efc421ab1205d22",
+    "bytes": 106
+  },
+  {
+    "path": "client/src-tauri/src/pty.rs",
+    "sha256": "775f99160e2edd20b0d10422cf9a71678ab3a4121cf778dfe23ca6e70e75d842",
+    "bytes": 4941
+  },
+  {
+    "path": "client/src-tauri/src/ssh.rs",
+    "sha256": "43fd57940593bbddd1185ab99b0f87fb14fb1f13b6d3fde56e4ea136aaa0c274",
+    "bytes": 6556
+  },
+  {
+    "path": "client/src-tauri/src/unirc.rs",
+    "sha256": "584d9b0a23fa28076c5516e91249177bf440e879c7b926be47dabe83cb67879f",
+    "bytes": 6553
+  },
+  {
+    "path": "client/src-tauri/tauri.conf.json",
+    "sha256": "00c856652bb1ad6654b9bdfc54d92e1de423e8ab18629901abd9b15c9326fff6",
+    "bytes": 1170
+  },
+  {
+    "path": "client/ui/index.html",
+    "sha256": "f18b723a912fffa5d63a5fbba9f49a15f852be06fe84bbf09dc6ef5cdb185690",
+    "bytes": 23031
+  },
+  {
+    "path": "client/ui/package-lock.json",
+    "sha256": "77174d31a107e0b16136ae5bf5e0cf1d3d40a40845a65427916b3087ed8adf55",
+    "bytes": 43048
+  },
+  {
+    "path": "client/ui/package.json",
+    "sha256": "f9845db0aa6d49ab9de933e107b5b8419b22e45571b7bcbfa12ae998e227377e",
+    "bytes": 396
+  },
+  {
+    "path": "client/ui/src/assets/logo.png",
+    "sha256": "4d27c108ed80feac31e3a463d3356d23287bb34c73eef5fecdf9644f2fe02d63",
+    "bytes": 4701
+  },
+  {
+    "path": "client/ui/src/host-dialog.css",
+    "sha256": "3d84c5a041c1142cecc93fc1887f3433cdb73898ed2b98950635e33866a2974a",
+    "bytes": 7051
+  },
+  {
+    "path": "client/ui/src/main.js",
+    "sha256": "a3007c71cd29b62e433a1accfc17299ca26a9be124a392e4b869ed94c03175f9",
+    "bytes": 76208
+  },
+  {
+    "path": "client/ui/src/proto/commands.css",
+    "sha256": "910943137736dc7f9212aa500cc1dce6688b3c5f0e92527d3a19d4214fe64b84",
+    "bytes": 4852
+  },
+  {
+    "path": "client/ui/src/proto/icons.js",
+    "sha256": "cde22041912fd5164b982dbf21c37f1ca899675a81dfb873030266631df68118",
+    "bytes": 2658
+  },
+  {
+    "path": "client/ui/src/proto/overrides.css",
+    "sha256": "ea046f09ec4d00a96caa2259c23da6acabd76ed584894466bc91d1e831b2f475",
+    "bytes": 1446
+  },
+  {
+    "path": "client/ui/src/proto/projects.css",
+    "sha256": "bc99d4e268f1b5b909422d358d911c84b0293053c817a1122f303aed98d794b6",
+    "bytes": 5171
+  },
+  {
+    "path": "client/ui/src/proto/style.css",
+    "sha256": "b3cd7c4927776b5ebc40f9d1f9650bfcc6825bf0c6717f3fcb96382c6ac8d753",
+    "bytes": 19678
+  },
+  {
+    "path": "client/ui/src/style.css",
+    "sha256": "82da1c321cd2145489fc503b845dde8baf6eae8d265846fccf38c093477d1ddc",
+    "bytes": 13270
+  },
+  {
+    "path": "client/ui/src/vendor/LICENSE.highlight.js",
+    "sha256": "6c081431591d9df696c82dc598fe1423765b8a299b200ed00b281afd0f64c490",
+    "bytes": 1514
+  },
+  {
+    "path": "client/ui/src/vendor/highlight.js",
+    "sha256": "f78ea46e6e3ec8417acba3c27cbd896fb20500d89d990f8dc46212510e386c7d",
+    "bytes": 129276
+  },
+  {
+    "path": "client/ui/vite.config.js",
+    "sha256": "364a4407a6392c3338536a0660242428d8ce2a6709fdbaf411e950c7f4af2b5d",
+    "bytes": 293
+  },
+  {
+    "path": "crates/rc-access/Cargo.toml",
+    "sha256": "fd0ff859bd0b90240c3282003872fa98bded142f3e67c68e15e723905876523a",
+    "bytes": 909
+  },
+  {
+    "path": "crates/rc-access/src/client.rs",
+    "sha256": "c4b6afe5ac97f295b405448546bfe7e0352e8b918f82351006710a4322a36c7e",
+    "bytes": 13354
+  },
+  {
+    "path": "crates/rc-access/src/credentials.rs",
+    "sha256": "d4b8342ef65a72627ce30f0385118e683cd5d988a2de7b4124f1a36da58c2879",
+    "bytes": 20009
+  },
+  {
+    "path": "crates/rc-access/src/lib.rs",
+    "sha256": "589d0027506e8dd30e21bd12f33f1914e76e88fa744528eb71d9bfeaf49c69f6",
+    "bytes": 129
+  },
+  {
+    "path": "crates/rc-access/src/wire.rs",
+    "sha256": "dd23187e939b37a011c8aad130f1d2405da1ac27c32d23c3034f485ebfe2353f",
+    "bytes": 5523
+  },
+  {
+    "path": "crates/rc-agent/Cargo.toml",
+    "sha256": "b7bf4a41a0e248be71bf1fd65fdd96c8fc0cc89e7a6d51479558e604514bc4d8",
+    "bytes": 889
+  },
+  {
+    "path": "crates/rc-agent/src/lib.rs",
+    "sha256": "e038ca239d05f26c9e7432fdfaa2b9d1b2a76f50883fa8a1cbeb73fff92d458f",
+    "bytes": 14465
+  },
+  {
+    "path": "crates/rc-agent/src/main.rs",
+    "sha256": "1d2d3565e65c544af2c2dca8228c1a6b42735fecf2d460b210487086c1fea8a6",
+    "bytes": 4682
+  },
+  {
+    "path": "crates/rc-core/Cargo.toml",
+    "sha256": "821833d856a63113401425cc1837303b3ea2546a23fbf0ba76327c5bd3cc16e5",
+    "bytes": 272
+  },
+  {
+    "path": "crates/rc-core/src/frame.rs",
+    "sha256": "4511e159ac7d42e7693b92840b142d9bfa31f56ea48135e80a9640ddf1403305",
+    "bytes": 3705
+  },
+  {
+    "path": "crates/rc-core/src/lib.rs",
+    "sha256": "9758820055e36a3ff7a11cef25d487fe7107c8a6ef7d0268c6c8c11b3a68d038",
+    "bytes": 321
+  },
+  {
+    "path": "crates/rc-core/src/message.rs",
+    "sha256": "c6baedb04392cdbf50d5d5d01cd7e39cc8130fdb9bb5bf78336690d2345f6333",
+    "bytes": 2927
+  },
+  {
+    "path": "crates/rc-server/Cargo.toml",
+    "sha256": "55197cafdbea594fa6acff1cdca6b311291894b302b147f3bbbabdfbc6ce9ee7",
+    "bytes": 895
+  },
+  {
+    "path": "crates/rc-server/examples/native_fixture.rs",
+    "sha256": "fb57844b7a852ef61e517e84007986575d813e216f91d762504e52c38f978edf",
+    "bytes": 1647
+  },
+  {
+    "path": "crates/rc-server/src/lib.rs",
+    "sha256": "9606d4946836d6d9dd756785c4ffff6a1fbdd823cd36a6979d9ffafe422f27df",
+    "bytes": 11693
+  },
+  {
+    "path": "crates/rc-server/src/main.rs",
+    "sha256": "cfdeb342109720da89941bed830118bd87ea59dc786b79964b22b3a57d8d5bd2",
+    "bytes": 3466
+  },
+  {
+    "path": "crates/rc-server/tests/e2e.rs",
+    "sha256": "e4578a2565cc3c0e211cd9298b1f3e473446ea9786f94951283aef7193f79ae4",
+    "bytes": 12423
+  },
+  {
+    "path": "deploy/README.md",
+    "sha256": "a68af41c993632670276424f3ab31243bc4089556abbd965abea0ef0d443127e",
+    "bytes": 3702
+  },
+  {
+    "path": "deploy/agent.env.example",
+    "sha256": "f58e85eb27677f699eeed4f2b3d83ddcbfa7e940a3f29080cac97ad4b39a5e47",
+    "bytes": 251
+  },
+  {
+    "path": "deploy/launchd/cn.wkkj.shunyi.agent.plist.example",
+    "sha256": "c1547da21ccc481d2025c01785ef9905aba9f762891c347b89a47f0da1cc5b13",
+    "bytes": 703
+  },
+  {
+    "path": "deploy/nginx.conf.example",
+    "sha256": "cc9ed10ac723619c9423ae7590d14f781ccaf5b4f53a46e0bca36626bb4827ee",
+    "bytes": 436
+  },
+  {
+    "path": "deploy/relay.env.example",
+    "sha256": "fedadbff73e53d893cd021a2cf423f739af15b7de028d8b24b1a7b54adb4575c",
+    "bytes": 290
+  },
+  {
+    "path": "deploy/systemd/shunyi-agent.service",
+    "sha256": "72057adcbb2ff18dc3b8d6db3688ac2869de188a6e08022d98a2430ba0fbfa57",
+    "bytes": 425
+  },
+  {
+    "path": "deploy/systemd/shunyi-relay.service",
+    "sha256": "f199b1bfb1c4c2a247ae8ace175aaa14cf54e5e1404d5da65297517a7d52dde9",
+    "bytes": 326
+  },
+  {
+    "path": "docs/architecture.md",
+    "sha256": "9abe39b2ff9939d0c49da56e9f8b101d1d158ad0f8283d8a496805469b53c580",
+    "bytes": 2481
+  },
+  {
+    "path": "docs/device-access-modes.md",
+    "sha256": "f9e4a4390f6b043802bcc4daa3837e0b90458e047196c9fc964b486f6cea560e",
+    "bytes": 2152
+  },
+  {
+    "path": "docs/faq.md",
+    "sha256": "3b0b66c8a4d3fb3bf18908b36cfd191e423450d84fc8033697c68f753c1cd1a3",
+    "bytes": 3738
+  },
+  {
+    "path": "docs/getting-started.md",
+    "sha256": "d80a2d82d9dcedcdf9b950fa590d185d250067bd8756336bccdfc0a72a86ed16",
+    "bytes": 4500
+  },
+  {
+    "path": "licenses/UPSTREAM-NOTICES.json",
+    "sha256": "03a1bd3f4e0ccea4673ce667bc555cbecdd8bc95201c100f0793740f12fe3119",
+    "bytes": 18989
+  },
+  {
+    "path": "licenses/upstream/alloc-stdlib-0.2.4/LICENSE",
+    "sha256": "c0c56f26d9c051cac4d200c34c84e7ae9aaa853e01a982a1df08b09931e518ae",
+    "bytes": 1483
+  },
+  {
+    "path": "licenses/upstream/asn1-rs-impl-0.2.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/asn1-rs-impl-0.2.0/LICENSE-MIT",
+    "sha256": "a5c61b93b6ee1d104af9920cf020ff3c7efe818e31fe562c72261847a728f513",
+    "bytes": 1060
+  },
+  {
+    "path": "licenses/upstream/block2-0.6.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/defmt-parser-1.0.0/LICENSE-APACHE",
+    "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90",
+    "bytes": 10850
+  },
+  {
+    "path": "licenses/upstream/defmt-parser-1.0.0/LICENSE-MIT",
+    "sha256": "2710a622a896bba67356913d4d0492cab5465f61b2ecce6d880aeb483834fb50",
+    "bytes": 1053
+  },
+  {
+    "path": "licenses/upstream/delegate-0.13.5/LICENSE-APACHE",
+    "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+    "bytes": 11357
+  },
+  {
+    "path": "licenses/upstream/delegate-0.13.5/LICENSE-MIT",
+    "sha256": "be7ee8aa49dc586023669a0c600a0536fce6a9f61264a53a67cdd842564ed899",
+    "bytes": 1078
+  },
+  {
+    "path": "licenses/upstream/dispatch2-0.3.1/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-0.6.4/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-app-kit-0.3.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-core-foundation-0.3.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-core-graphics-0.3.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-encode-4.1.0/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-exception-helper-0.1.1/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-io-surface-0.3.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/objc2-web-kit-0.3.2/LICENSE.md",
+    "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54",
+    "bytes": 1339
+  },
+  {
+    "path": "licenses/upstream/russh-0.54.5/LICENSE.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "licenses/upstream/russh-cryptovec-0.52.0/LICENSE-2.0.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "licenses/upstream/russh-util-0.52.0/LICENSE-2.0.txt",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "licenses/upstream/selectors-0.36.1/LICENSE-MPL-2.0.txt",
+    "sha256": "7431709b43cd480dd0f4c63e22f9b0b34ca6f2287a242c3cf879714a108050f1",
+    "bytes": 14831
+  },
+  {
+    "path": "licenses/upstream/tauri-plugin-2.6.3/LICENSE.spdx",
+    "sha256": "5e834fe9788c524210deda859c46a550ffa5aa0cba9ea0572f0d81120e97c008",
+    "bytes": 889
+  },
+  {
+    "path": "licenses/upstream/tauri-plugin-2.6.3/LICENSE_APACHE-2.0",
+    "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+    "bytes": 10174
+  },
+  {
+    "path": "licenses/upstream/tauri-plugin-2.6.3/LICENSE_MIT",
+    "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d",
+    "bytes": 1090
+  },
+  {
+    "path": "licenses/upstream/unic-char-property-0.9.0/AUTHORS",
+    "sha256": "2748c1a1fba7616917c61d455e8d715ab952671ead63f2026ad0124410596b09",
+    "bytes": 664
+  },
+  {
+    "path": "licenses/upstream/unic-char-property-0.9.0/COPYRIGHT.md",
+    "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+    "bytes": 608
+  },
+  {
+    "path": "licenses/upstream/unic-char-property-0.9.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/unic-char-property-0.9.0/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "bytes": 1023
+  },
+  {
+    "path": "licenses/upstream/unic-char-range-0.9.0/AUTHORS",
+    "sha256": "2748c1a1fba7616917c61d455e8d715ab952671ead63f2026ad0124410596b09",
+    "bytes": 664
+  },
+  {
+    "path": "licenses/upstream/unic-char-range-0.9.0/COPYRIGHT.md",
+    "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+    "bytes": 608
+  },
+  {
+    "path": "licenses/upstream/unic-char-range-0.9.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/unic-char-range-0.9.0/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "bytes": 1023
+  },
+  {
+    "path": "licenses/upstream/unic-common-0.9.0/AUTHORS",
+    "sha256": "2748c1a1fba7616917c61d455e8d715ab952671ead63f2026ad0124410596b09",
+    "bytes": 664
+  },
+  {
+    "path": "licenses/upstream/unic-common-0.9.0/COPYRIGHT.md",
+    "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+    "bytes": 608
+  },
+  {
+    "path": "licenses/upstream/unic-common-0.9.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/unic-common-0.9.0/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "bytes": 1023
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-ident-0.9.0/AUTHORS",
+    "sha256": "2748c1a1fba7616917c61d455e8d715ab952671ead63f2026ad0124410596b09",
+    "bytes": 664
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-ident-0.9.0/COPYRIGHT.md",
+    "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+    "bytes": 608
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-ident-0.9.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-ident-0.9.0/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "bytes": 1023
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-version-0.9.0/AUTHORS",
+    "sha256": "2748c1a1fba7616917c61d455e8d715ab952671ead63f2026ad0124410596b09",
+    "bytes": 664
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-version-0.9.0/COPYRIGHT.md",
+    "sha256": "f5c342c49f3ac804f3e8e7bb62a8040a44c50d47bb36902b1abd13f66a1adf8b",
+    "bytes": 608
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-version-0.9.0/LICENSE-APACHE",
+    "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2",
+    "bytes": 10847
+  },
+  {
+    "path": "licenses/upstream/unic-ucd-version-0.9.0/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "bytes": 1023
+  },
+  {
+    "path": "protocol/UniRC-T-v0.md",
+    "sha256": "6e34f85320940ee7e48ac91de244c14338426519edf5f2e0743db2281307bca0",
+    "bytes": 3165
+  },
+  {
+    "path": "protocol/UniRC-T-v2.md",
+    "sha256": "00346d775e7ff3ac00b8eec2cf8f180cc67aa34d3dfb5769aef36c5f8c49f065",
+    "bytes": 2832
+  },
+  {
+    "path": "scripts/build_macos.py",
+    "sha256": "43d4b6297fcad122d8ff58b99aff0bf9e4026780e3fc9bc69b990a1a50def868",
+    "bytes": 918
+  },
+  {
+    "path": "scripts/collect_licenses.py",
+    "sha256": "0c47d98577047c966e896e587c1d0154609f3664eac87ccbd02777dc4e0f5be5",
+    "bytes": 3620
+  },
+  {
+    "path": "scripts/package_macos.py",
+    "sha256": "8c62a877354daa55da541e5b130d7bd3d74d2323003d4b9f74a3de78c6b800a0",
+    "bytes": 3059
+  },
+  {
+    "path": "scripts/package_source.py",
+    "sha256": "4721e46c7801c8f20c1a8d4b22f8e56334c439304abebb23e9c84dc83977ed03",
+    "bytes": 2779
+  }
+]

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- 瞬移 App 图标 v2：残影（出发）→ 传送走廊粒子 → 实心六边形+闪电（到达） -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2133"/>
+      <stop offset="1" stop-color="#0b0d14"/>
+    </linearGradient>
+    <linearGradient id="hex" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#6aabff"/>
+      <stop offset="0.5" stop-color="#3d7dff"/>
+      <stop offset="1" stop-color="#2a56d0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 底板：macOS 圆角方形，深空蓝黑（终端主题色） -->
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+  <ellipse cx="660" cy="540" rx="400" ry="330" fill="#3d7dff" opacity="0.08"/>
+
+  <!-- 速度线：贴左缘，止于残影之外 -->
+  <g stroke-linecap="round">
+    <line x1="52" y1="410" x2="132" y2="410" stroke="#4f8cff" stroke-width="13" opacity="0.3"/>
+    <line x1="34" y1="512" x2="140" y2="512" stroke="#6ea3ff" stroke-width="17" opacity="0.55"/>
+    <line x1="52" y1="614" x2="132" y2="614" stroke="#4f8cff" stroke-width="13" opacity="0.3"/>
+  </g>
+
+  <!-- 残影（出发位置）：虚线六边形 -->
+  <polygon points="300,342 152.8,427 152.8,597 300,682 447.2,597 447.2,427"
+           fill="none" stroke="#6ea6ff" stroke-width="10" stroke-dasharray="26 18" opacity="0.52"/>
+
+  <!-- 传送走廊：瞬移途中散落的数据位 -->
+  <g fill="#8dbdff">
+    <rect x="474" y="446" width="26" height="26" rx="6" opacity="0.9"/>
+    <rect x="488" y="540" width="18" height="18" rx="4" opacity="0.7"/>
+    <rect x="466" y="600" width="14" height="14" rx="4" opacity="0.55"/>
+    <circle cx="466" cy="500" r="8" opacity="0.75"/>
+    <circle cx="500" cy="470" r="6" opacity="0.6"/>
+    <circle cx="492" cy="640" r="9" opacity="0.5"/>
+  </g>
+
+  <!-- 主六边形（到达位置）：实心渐变 + 内环 -->
+  <polygon points="690,317 521.1,419.5 521.1,604.5 690,707 858.9,604.5 858.9,419.5"
+           fill="url(#hex)" stroke="#9cc3ff" stroke-width="5"/>
+  <polygon points="690,382 577.4,447 577.4,577 690,642 802.6,577 802.6,447"
+           fill="none" stroke="#ffffff" stroke-width="4" opacity="0.3"/>
+
+  <!-- 中心闪电：瞬移的能量与速度 -->
+  <polygon points="728,372 630,532 690,532 652,652 766,486 704,486"
+           fill="#ffffff" opacity="0.96"/>
+</svg>

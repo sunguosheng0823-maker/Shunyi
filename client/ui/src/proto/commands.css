@@ -1,0 +1,57 @@
+.main-body { display:flex; flex:1; min-height:0; min-width:0; position:relative; }
+#content { min-width:0; }
+.command-panel { width:268px; flex:0 0 268px; min-height:0; display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--side); }
+.command-panel-header { height:38px; flex-shrink:0; display:flex; align-items:center; gap:5px; padding:0 10px 0 15px; border-bottom:1px solid var(--line); }
+.command-panel-header h2 { font-size:12px; font-weight:600; margin:0; flex:1; }
+.command-panel-header .text-button { color:var(--accent-text); }
+.command-panel-header .icon-button { width:24px; height:25px; }
+.command-target { padding:13px 15px 12px; display:flex; flex-direction:column; gap:4px; border-bottom:1px solid var(--line); }
+.command-target > span { color:var(--muted); font-size:11px; }
+.command-target strong { font-weight:500; font-size:12px; color:#dce7fb; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.command-target small { color:var(--muted); font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.command-library { flex:1; min-height:0; display:flex; flex-direction:column; }
+.command-search { flex-shrink:0; margin:13px 12px 8px; }
+.command-search input { height:31px; }
+.command-list-caption { display:flex; justify-content:space-between; gap:6px; font-size:11px; color:var(--muted); padding:2px 13px 8px; flex-shrink:0; }
+.command-list { flex:1; min-height:0; overflow:auto; padding:0 8px 12px; }
+.command-row { display:flex; align-items:flex-start; border-bottom:1px solid #2b2f39; }
+.command-row:hover { background:var(--hover); }
+.command-send { display:flex; flex:1; min-width:0; flex-direction:column; gap:6px; text-align:left; padding:13px 6px 13px 7px; border-radius:3px; }
+.command-send:hover .command-name { color:#a8c9ff; }
+.command-send:active { background:var(--selected); }
+.command-name { font-size:12px; line-height:1.5; color:var(--text); overflow-wrap:anywhere; }
+.command-send code { font:11px/1.65 var(--mono); color:#a6b7d1; white-space:pre-wrap; overflow-wrap:anywhere; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.command-row-tools { flex-shrink:0; display:flex; gap:1px; padding:9px 2px 0 0; }
+.command-row-tools .icon-button { width:23px; height:26px; }
+.command-row-tools svg { width:13px; height:13px; }
+.command-delete:hover { color:#ffb5b5; background:#4a3039; }
+.command-panel-footer { font-size:11px; color:var(--muted); padding:9px 13px; border-top:1px solid var(--line); flex-shrink:0; }
+.command-toggle { border:1px solid #414a5b; color:#bdc9dd; padding:4px 7px; margin-left:6px; flex-shrink:0; }
+.command-toggle.active { background:#293750; color:#d0e0ff; border-color:#4c648c; }
+.command-empty { padding:30px 10px; font-size:12px; line-height:1.8; color:var(--muted); }
+.command-empty > svg { margin-bottom:12px; width:24px; height:24px; }
+.command-empty strong { display:block; color:var(--text); font-weight:500; }
+.command-empty p { margin:7px 0 13px; }
+.command-empty .text-button { color:var(--accent-text); }
+.command-editor { flex:1; min-height:0; overflow:auto; padding:10px 14px 16px; display:flex; flex-direction:column; }
+.command-editor-heading { display:flex; align-items:center; gap:5px; margin-bottom:16px; }
+.command-editor-heading .icon-button { margin-left:-5px; }
+.command-editor h3 { margin:0; font-size:12px; font-weight:600; }
+.command-editor label { margin:0 0 8px; font-size:12px; color:var(--text); }
+.command-editor input { width:100%; padding:8px; margin-bottom:18px; font-size:12px; }
+.command-editor textarea { width:100%; min-height:130px; resize:vertical; background:var(--bg); color:var(--text); border:1px solid #3c4352; border-radius:5px; padding:9px; font:12px/1.75 var(--mono); caret-color:var(--accent); outline:none; }
+.command-editor textarea:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+.command-editor textarea::placeholder { color:var(--subtle); }
+.command-editor-note { font-size:11px; line-height:1.8; color:var(--muted); margin:9px 0 20px; }
+.command-editor-actions { display:flex; justify-content:flex-end; gap:7px; margin-top:auto; }
+.command-undo { padding:9px 12px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; gap:5px; align-items:center; color:var(--text); font-size:11px; line-height:1.6; }
+.command-undo span { overflow-wrap:anywhere; min-width:0; }
+.command-undo button { margin-left:auto; color:var(--accent-text); font-size:11px; }
+.terminal-view .prompt { max-width:100%; overflow-wrap:anywhere; }
+@media(max-width:1179px) {
+  .command-panel { position:absolute; top:0; right:0; bottom:0; width:min(286px,90%); z-index:5; border-left-color:#485366; }
+}
+@media(max-width:760px) {
+  .command-toggle { margin-left:auto; }
+  .terminal-toolbar > .toolbar-caption { display:none; }
+}

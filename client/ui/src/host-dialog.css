@@ -1,0 +1,79 @@
+/* The host form inherits the terminal workspace, with its own bounded scroll area. */
+#host-dialog {
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 40px);
+  padding: 0;
+  overflow: hidden;
+}
+#host-form { display: flex; flex-direction: column; max-height: calc(100dvh - 42px); }
+#host-dialog .dialog-header { padding: 24px 24px 20px; flex-shrink: 0; }
+#host-dialog .dialog-header h2 { font-size: 18px; font-weight: 600; line-height: 24px; margin: 0 0 6px; }
+#host-dialog .dialog-header p { margin: 0; line-height: 20px; }
+#host-dialog .dialog-header > .icon-button { width: 32px; height: 32px; margin: -4px -8px 0 0; }
+#host-dialog .host-form-body { display: flex; flex-direction: column; gap: 24px; padding: 0 24px 24px; overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
+#host-dialog fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+#host-dialog legend { padding: 0; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 12px; line-height: 18px; }
+#host-dialog .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#host-dialog label { margin: 0; font-size: 12px; line-height: 18px; color: var(--muted); min-width: 0; }
+#host-dialog input:not([type="radio"]), #host-dialog select { width: 100%; height: 38px; margin-top: 8px; padding: 8px 12px; font-size: 13px; line-height: 20px; }
+#host-dialog input:hover, #host-dialog select:hover { border-color: #474d5d; }
+#host-dialog .host-technical-input { font-family: var(--mono); font-size: 12px; }
+#host-dialog select { appearance: none; padding-right: 36px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0a6b5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m8 10 4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+#host-dialog .host-protocol-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--bg); border-radius: 6px; }
+#host-dialog .host-protocol-switch label { position: relative; cursor: pointer; }
+#host-dialog .host-protocol-switch input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+#host-dialog .host-protocol-switch span { display: flex; align-items: center; justify-content: center; gap: 8px; height: 36px; border-radius: 4px; font-size: 13px; font-weight: 500; }
+#host-dialog .host-protocol-switch label:hover span { background: var(--hover); color: var(--text); }
+#host-dialog .host-protocol-switch input:checked + span { color: var(--accent-text); background: var(--selected); }
+#host-dialog .host-protocol-switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: -2px; }
+#host-dialog .host-field-hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 18px; }
+#host-dialog .host-field-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+#host-dialog .host-address-grid { display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 16px; margin-top: 16px; }
+#host-dialog .host-device-field, #host-dialog .host-auth-field { margin-top: 16px; }
+#host-dialog .host-optional { font-size: 11px; color: var(--subtle); font-weight: 400; margin-left: 4px; }
+#host-dialog .host-password-input { position: relative; margin-top: 8px; }
+#host-dialog .host-password-input input { margin: 0; padding-right: 44px; }
+#host-dialog .host-password-input button { position: absolute; width: 32px; height: 32px; right: 3px; top: 3px; }
+#host-dialog .host-file-input { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+#host-dialog .host-file-input input { margin: 0; min-width: 0; flex: 1; }
+#host-dialog .host-file-input button { flex-shrink: 0; height: 38px; padding: 8px 12px; }
+#temporary-dialog { width: 440px; max-width: calc(100vw - 32px); }
+#temporary-dialog .dialog-header h2 { font-size: 18px; margin: 0 0 6px; }
+#temporary-dialog .dialog-header p { overflow-wrap: anywhere; }
+#settings-dialog #open-device-access { margin-right: auto; }
+#device-dialog { width: 560px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 40px); padding: 0; overflow: hidden; }
+#device-dialog[open] { display: flex; flex-direction: column; }
+#device-dialog .dialog-header { padding: 24px 24px 20px; margin: 0; flex-shrink: 0; }
+#device-dialog h2 { margin: 0 0 6px; font-size: 18px; line-height: 24px; }
+#device-dialog .dialog-header p { margin: 0; line-height: 20px; }
+#device-dialog .device-body { padding: 0 24px 24px; overflow-y: auto; min-height: 0; }
+#device-dialog .device-section + .device-section { border-top: 1px solid var(--border); margin-top: 24px; padding-top: 24px; }
+#device-dialog .device-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+#device-dialog h3 { font-size: 13px; font-weight: 600; margin: 0; }
+#device-dialog p { font-size: 12px; line-height: 19px; color: var(--muted); }
+#device-dialog .field-note { margin: 10px 0 14px; }
+#device-dialog label { margin: 0; font-size: 12px; }
+#device-dialog input, #device-dialog select { height: 36px; margin-top: 8px; }
+#device-dialog .device-copy-field { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+#device-dialog .device-copy-field input { flex: 1; min-width: 0; margin: 0; font-family: var(--mono); font-size: 12px; }
+#device-dialog button { flex-shrink: 0; min-height: 32px; }
+#device-dialog .device-rotation { display: flex; align-items: end; gap: 16px; margin-top: 14px; }
+#device-dialog .device-rotation label { flex: 1; }
+#device-dialog .device-rotation button { margin-bottom: 2px; }
+#device-dialog .device-state { color: var(--muted); font-size: 12px; }
+#device-dialog .device-error { color: var(--danger); margin: 16px 0 0; }
+#device-password-result { margin-top: 16px; }
+#host-dialog .host-protocol-note { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: var(--muted); font-size: 12px; line-height: 18px; }
+#host-dialog .host-form-error { margin: 0; color: var(--danger); font-size: 12px; line-height: 18px; }
+#host-dialog .dialog-footer { gap: 8px; margin: 0; padding: 16px 24px; flex-shrink: 0; background: var(--side); }
+#host-dialog .dialog-footer button { min-height: 36px; padding: 8px 14px; }
+#host-dialog .host-cancel-button { margin-right: auto; border-radius: 5px; color: var(--muted); font-size: 12px; }
+#host-dialog .host-cancel-button:hover { background: var(--hover); color: var(--text); }
+@media (max-width: 440px) {
+  #host-dialog .dialog-header { padding: 20px 16px 16px; }
+  #host-dialog .host-form-body { padding: 0 16px 20px; gap: 20px; }
+  #host-dialog .host-field-grid { grid-template-columns: minmax(0, 1fr); }
+  #host-dialog .host-address-grid { grid-template-columns: minmax(0, 1fr) 88px; gap: 12px; }
+  #host-dialog .dialog-footer { padding: 12px 16px; }
+}

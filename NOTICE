@@ -1,0 +1,10 @@
+瞬移 / Shunyi (UniRC-T)
+Copyright 2026 北京链脉科技有限公司
+
+This project is licensed under the Apache License, Version 2.0.
+The project and product names do not grant trademark rights.
+
+The desktop client includes highlight.js, copyright Ivan Sagalaev and contributors,
+under the BSD 3-Clause License. See client/ui/src/vendor/LICENSE.highlight.js.
+Other dependencies retain their respective licenses declared in Cargo.lock and
+client/ui/package-lock.json; binary release packages include their license files.

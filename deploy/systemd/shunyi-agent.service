@@ -1,0 +1,19 @@
+[Unit]
+Description=Shunyi accountless remote terminal agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Replace this with the locally authorized OS user. Use root only deliberately.
+User=shunyi
+EnvironmentFile=/etc/shunyi/agent.env
+ExecStart=/usr/local/bin/rc-agent run
+Restart=always
+RestartSec=5
+UMask=0077
+KillMode=control-group
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

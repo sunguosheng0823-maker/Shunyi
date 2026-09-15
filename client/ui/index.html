@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>瞬移终端</title>
+</head>
+<body>
+  <div class="window" id="window">
+    <header class="titlebar" data-tauri-drag-region><div class="traffic-lights" aria-hidden="true"><i></i><i></i><i></i></div><span data-tauri-drag-region>瞬移终端</span><div class="titlebar-actions"><button class="icon-button" id="help-button" title="使用帮助" aria-label="使用帮助" data-icon="help"></button><button class="icon-button" id="open-terminal" title="打开当前工作区的终端" aria-label="打开终端" data-icon="terminal-window"></button><button class="icon-button" id="toggle-sidebar" title="显示 / 隐藏侧栏 · ⌘B" aria-label="显示或隐藏侧栏" data-icon="sidebar"></button></div></header>
+    <div class="workspace" id="workspace">
+      <aside id="sidebar" aria-label="项目、文件与连接">
+        <div class="brand-row"><div class="brand"><img src="/src/assets/logo.png" alt="瞬移"><span>瞬移</span></div><button class="icon-button" id="settings-button" title="设置" aria-label="设置" data-icon="settings"></button></div>
+        <div class="primary-actions"><button class="secondary-button" id="open-folder" title="打开本地目录，添加项目 · ⌘O"><span data-icon="folder-open"></span>打开项目</button></div>
+        <button class="sidebar-group-toggle global-remote" id="remote-workspace-button" aria-expanded="false" aria-controls="remote-pane"><span class="sidebar-group-icon" data-icon="server"></span><span class="sidebar-group-name">远程主机</span><span class="sidebar-group-count" id="remote-host-count"></span><span class="sidebar-group-chevron remote-chevron" data-icon="chevron-right"></span></button>
+        <section class="side-pane" id="remote-pane" role="region" aria-labelledby="remote-workspace-button" hidden>
+          <label class="search-field remote-search"><span data-icon="search"></span><input id="host-search" type="search" placeholder="搜索名称 / 地址…" aria-label="搜索远程主机"></label>
+          <div class="remote-filters"><select id="protocol-filter" aria-label="按连接类型筛选"><option value="all">全部类型</option><option value="ssh">SSH</option><option value="unirc">瞬移协议</option></select><select id="group-filter" aria-label="按分组筛选"><option value="all">全部分组</option></select></div>
+          <div class="pane-toolbar remote-toolbar"><span id="visible-count">全部主机</span><div><button class="text-button" id="manage-hosts"><span data-icon="sliders"></span>选择显示</button><button class="icon-button" id="new-host" title="新建远程主机" aria-label="新建远程主机" data-icon="plus"></button></div></div>
+          <div id="host-list" class="host-list"></div>
+          <div class="side-footer"><span data-icon="info"></span><span>全局主机</span><button class="text-button" id="btn-import-hosts">导入</button><button class="text-button" id="btn-export-hosts">导出</button></div>
+        </section>
+        <button class="sidebar-group-toggle projects-heading" id="collapse-projects" aria-expanded="true" aria-controls="project-list" title="收起项目列表"><span class="sidebar-group-icon" data-icon="folder"></span><span class="sidebar-group-name">项目</span><span class="sidebar-group-count" id="project-count">3</span><span class="sidebar-group-chevron" data-icon="chevron-down"></span></button>
+        <nav id="project-list" class="project-list" aria-label="项目列表"></nav>
+        <div id="project-content" class="project-content">
+
+        <section class="side-pane" id="files-pane" role="region" aria-label="项目文件">
+          <div class="pane-toolbar"><span>资源管理器</span><div><button class="icon-button" id="quick-open" title="快速打开文件 · ⌘P" aria-label="快速打开文件" data-icon="search"></button><button class="icon-button" id="collapse-tree" title="折叠所有目录" aria-label="折叠所有目录" data-icon="collapse"></button></div></div>
+          <label class="search-field"><span data-icon="search"></span><input id="file-filter" type="search" placeholder="筛选已加载文件…" aria-label="筛选已加载文件名"></label>
+          <div class="root-row"><button id="root-toggle" aria-expanded="true"><span data-icon="chevron-down"></span><span data-icon="folder"></span><strong id="root-name">项目目录</strong></button></div>
+          <div class="source-note" id="source-note">项目文件 · 只读预览</div>
+          <div id="file-tree" class="file-tree" role="tree" aria-label="本地目录文件"></div>
+          <div class="side-footer"><span data-icon="lock"></span><span>文件只读预览</span><button class="text-button" id="refresh-files">刷新目录</button></div>
+        </section>
+
+        </div>
+        <div class="project-sidebar-footer"><span data-icon="folder"></span><span id="project-context-label">项目</span><span id="workspace-kind-label">项目工作区</span></div>
+      </aside>
+      <div class="sidebar-resize" id="sidebar-resize" role="separator" aria-label="调整侧栏宽度" aria-orientation="vertical" aria-valuemin="230" aria-valuemax="420" aria-valuenow="280" tabindex="0"></div>
+      <main id="main" aria-label="终端与文件预览">
+        <div id="tabbar" role="tablist" aria-label="打开的终端和文件"></div>
+        <div class="main-body" id="main-body">
+          <div id="content" role="tabpanel" tabindex="0">
+            <!-- 终端视图（真实 xterm 会话，容器常驻不重建） -->
+            <div id="term-ui" hidden>
+              <div class="terminal-toolbar"><span class="toolbar-caption">终端</span><div class="toolbar-right"><span class="session-project" id="session-project"></span><span class="session-address" id="session-address"></span></div><button class="text-button command-toggle" data-action="toggle-commands" aria-controls="command-panel" aria-expanded="false" title="显示或收起右侧快捷指令"><span data-icon="sidebar-right"></span>快捷指令</button></div>
+              <div class="terminal-view" id="term-stage"></div>
+              <div class="terminal-status" id="term-status"></div>
+            </div>
+            <!-- 文件只读预览 -->
+            <div id="file-ui" hidden></div>
+            <!-- 项目空态 -->
+            <div id="empty-main" hidden></div>
+          </div>
+          <aside id="command-panel" class="command-panel" aria-label="快捷指令" hidden>
+            <header class="command-panel-header"><h2>快捷指令</h2><button class="text-button" id="add-command"><span data-icon="plus"></span>添加</button><button class="icon-button" id="close-command-panel" title="收起快捷指令" aria-label="收起快捷指令" data-icon="chevron-right"></button></header>
+            <div class="command-target"><span>当前发送目标</span><strong id="command-target-name"></strong><small id="command-target-project"></small></div>
+            <section id="command-library" class="command-library" aria-label="指令列表">
+              <label class="search-field command-search"><span data-icon="search"></span><input id="command-search" type="search" placeholder="搜索名称或命令…" aria-label="搜索快捷指令"></label>
+              <div class="command-list-caption"><span id="command-count"></span><span>点击指令发送 ↵</span></div>
+              <div id="command-list" class="command-list" role="list"></div>
+            </section>
+            <form id="command-editor" class="command-editor" hidden>
+              <div class="command-editor-heading"><button class="icon-button" id="cancel-command-top" type="button" aria-label="返回指令列表" data-icon="back"></button><h3 id="command-editor-title">添加指令</h3></div>
+              <label for="command-name">指令名称</label><input id="command-name" name="name" placeholder="例如：查看容器" required maxlength="60" autocomplete="off">
+              <label for="command-text">命令内容</label><textarea id="command-text" name="command" placeholder="docker ps" rows="7" required maxlength="4000" spellcheck="false"></textarea>
+              <p class="command-editor-note">支持多行命令。保存后，在列表中点击发送到当前终端。</p>
+              <div class="command-editor-actions"><button class="secondary-button" id="cancel-command" type="button">取消</button><button class="primary-button" type="submit">保存指令</button></div>
+            </form>
+            <div id="command-undo" class="command-undo" role="status" hidden><span id="command-undo-message"></span><button class="text-button" id="undo-command">撤销删除</button></div>
+            <footer class="command-panel-footer">通用指令库 · 保存在本机</footer>
+          </aside>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="host-picker" class="picker-dialog" aria-labelledby="picker-title"><div class="dialog-header"><div><h2 id="picker-title">选择显示的主机</h2><p>选择全局列表中显示的主机，可配合类型与分组筛选。隐藏主机不会关闭已打开的会话。</p></div><button class="icon-button" data-close="host-picker" aria-label="关闭主机选择" data-icon="close"></button></div><div class="picker-actions"><button class="text-button" id="select-all">全选</button><button class="text-button" id="select-none">全不选</button><span id="picker-count"></span></div><div id="picker-list"></div><div class="dialog-footer"><button class="secondary-button" data-close="host-picker">取消</button><button class="primary-button" id="apply-host-selection">应用显示</button></div></dialog>
+  <dialog id="quick-dialog" class="quick-dialog" aria-labelledby="quick-title"><div class="dialog-header"><h2 id="quick-title">快速打开文件</h2><button class="icon-button" data-close="quick-dialog" aria-label="关闭快速打开" data-icon="close"></button></div><input id="quick-search" type="search" placeholder="输入文件名…" aria-label="快速查找文件"><div id="quick-results"></div></dialog>
+  <dialog id="host-dialog" class="host-dialog" aria-labelledby="host-dialog-title" aria-describedby="host-dialog-description">
+    <form id="host-form" spellcheck="false" autocorrect="off" autocapitalize="off">
+      <div class="dialog-header">
+        <div><h2 id="host-dialog-title">新建主机</h2><p id="host-dialog-description">保存常用连接，随时从远程主机列表打开。</p></div>
+        <button type="button" class="icon-button" data-close="host-dialog" aria-label="关闭新建主机" data-icon="close"></button>
+      </div>
+      <div class="host-form-body">
+        <fieldset class="host-protocol-field">
+          <legend class="visually-hidden">连接类型</legend>
+          <div class="host-protocol-switch">
+            <label><input type="radio" name="proto" value="ssh" checked><span><i data-icon="terminal"></i>SSH</span></label>
+            <label><input type="radio" name="proto" value="unirc"><span><i data-icon="connection"></i>瞬移协议</span></label>
+          </div>
+          <p class="host-field-hint" id="host-protocol-hint">通过 IP 地址或域名，直接连接远程主机。</p>
+        </fieldset>
+
+        <fieldset class="host-section">
+          <legend>主机信息</legend>
+          <div class="host-field-grid">
+            <label>主机名称<input name="name" placeholder="如：开发服务器" required maxlength="80"></label>
+            <label>分组 <span class="host-optional">选填</span><input name="group" placeholder="默认" list="host-group-suggestions" maxlength="40"></label>
+          </div>
+          <datalist id="host-group-suggestions"></datalist>
+          <fieldset class="host-address-grid" data-host-proto="ssh">
+            <legend class="visually-hidden">SSH 连接地址</legend>
+            <label>主机地址<input class="host-technical-input" name="host" placeholder="IP 地址或域名" required maxlength="160" autocapitalize="off"></label>
+            <label>端口<input class="host-technical-input" name="port" type="number" value="22" min="1" max="65535" required inputmode="numeric" aria-label="SSH 端口"></label>
+          </fieldset>
+          <fieldset class="host-device-field" data-host-proto="unirc" hidden disabled>
+            <legend class="visually-hidden">瞬移设备</legend>
+            <label>设备 ID<input class="host-technical-input" name="deviceId" placeholder="粘贴对方的完整设备 ID" maxlength="80" aria-describedby="host-device-hint"></label>
+            <p class="host-field-hint" id="host-device-hint">选择连接证书后自动填写；临时连接时向设备所有者获取。</p>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="host-section" data-host-proto="ssh">
+          <legend>登录认证</legend>
+          <div class="host-field-grid">
+            <label>用户名<input class="host-technical-input" name="username" placeholder="root" autocomplete="off" maxlength="80"></label>
+            <label>认证方式<select name="authType"><option value="password">密码</option><option value="key">私钥文件</option></select></label>
+          </div>
+          <div class="host-auth-field auth-password">
+            <label for="host-password">密码</label>
+            <div class="host-password-input"><input id="host-password" name="password" type="password" placeholder="输入登录密码" autocomplete="off"><button class="icon-button" id="host-password-toggle" type="button" aria-label="显示密码" aria-pressed="false" data-icon="eye"></button></div>
+          </div>
+          <div class="host-auth-field auth-key" hidden>
+            <label>私钥路径<input class="host-technical-input" name="keyPath" placeholder="~/.ssh/id_ed25519" maxlength="200" aria-describedby="host-key-hint" disabled></label>
+            <p class="host-field-hint" id="host-key-hint">填写这台 Mac 上的私钥文件路径。</p>
+          </div>
+        </fieldset>
+        <fieldset class="host-section" data-host-proto="unirc" hidden disabled>
+          <legend>设备认证</legend>
+          <label>连接方式<select name="deviceAuth"><option value="certificate">连接证书 · 长期使用</option><option value="temporary">临时密码 · 单次连接</option></select></label>
+          <div class="host-auth-field" id="certificate-field">
+            <label for="host-certificate">连接证书</label>
+            <div class="host-file-input"><input id="host-certificate" name="certificatePath" class="host-technical-input" placeholder="选择 .shunyi-cert 文件" autocomplete="off"><button type="button" class="secondary-button" id="choose-certificate">选择文件</button></div>
+            <p class="host-field-hint">由对方设备导出的专用证书。私钥保留在证书文件中，主机配置只记录文件路径。</p>
+          </div>
+          <div class="host-auth-field" id="temporary-field" hidden>
+            <label>临时密码 <span class="host-optional">连接时填写</span><input name="temporaryPassword" type="password" placeholder="输入设备所有者提供的临时密码" autocomplete="new-password" maxlength="128"></label>
+            <p class="host-field-hint">只用于本次访问，不保存到主机配置。关闭最后一个终端或连接断开后，需要新的临时密码。</p>
+          </div>
+        </fieldset>
+        <p class="host-protocol-note" id="host-unirc-note" hidden><i data-icon="lock"></i><span>无需账号。使用「设置」中的中继地址，设备端独立验证连接权限。</span></p>
+        <p id="host-form-error" class="host-form-error" role="alert" hidden></p>
+      </div>
+      <div class="dialog-footer">
+        <button class="host-cancel-button" type="button" data-close="host-dialog">取消</button>
+        <button class="secondary-button" type="submit" name="intent" value="save" id="host-save-only">仅保存</button>
+        <button class="primary-button" type="submit" name="intent" value="connect" id="host-submit">保存并连接</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="temporary-dialog" class="host-dialog" aria-labelledby="temporary-title"><form id="temporary-form" autocomplete="off">
+    <div class="dialog-header"><div><h2 id="temporary-title">临时连接</h2><p id="temporary-target"></p></div><button type="button" class="icon-button" data-close="temporary-dialog" aria-label="取消临时连接" data-icon="close"></button></div>
+    <label>临时密码<input name="password" type="password" autocomplete="new-password" required maxlength="128" placeholder="输入新的临时密码"></label>
+    <p class="field-note">首次认证成功后，仅授权这次访问。密码不会保存；断开后请向设备所有者获取新密码。</p>
+    <div class="dialog-footer"><button type="button" class="secondary-button" data-close="temporary-dialog">取消</button><button class="primary-button" type="submit">连接设备</button></div>
+  </form></dialog>
+  <dialog id="settings-dialog" class="host-dialog" aria-labelledby="settings-title"><form id="settings-form"><div class="dialog-header"><div><h2 id="settings-title">设置</h2><p>瞬移协议（Agent 接入）使用的服务器与凭据。</p></div><button type="button" class="icon-button" data-close="settings-dialog" aria-label="关闭" data-icon="close"></button></div>
+    <label>服务器地址<input name="serverUrl" placeholder="ws://服务器IP:8080" maxlength="200"></label>
+    <label>中继准入令牌 <span class="host-optional">选填</span><input name="token" type="password" autocomplete="off" placeholder="仅在中继管理员要求时填写" maxlength="120"></label>
+    <p class="field-note">SSH 直连不依赖此服务器；本机文件仅在你选择项目目录后读取，且只读预览。</p>
+    <div class="dialog-footer"><button class="text-button" type="button" id="open-device-access">本机接入与凭据</button><button class="secondary-button" type="button" data-close="settings-dialog">取消</button><button class="primary-button" type="submit">保存</button></div>
+  </form></dialog>
+
+  <dialog id="device-dialog" class="host-dialog" aria-labelledby="device-title">
+    <div class="dialog-header"><div><h2 id="device-title">本机接入与凭据</h2><p>允许受信任的使用者通过瞬移连接这台 Mac。</p></div><button type="button" class="icon-button" data-close="device-dialog" aria-label="关闭本机接入" data-icon="close"></button></div>
+    <div class="device-body">
+      <section class="device-section" aria-labelledby="sharing-title"><div class="device-section-heading"><h3 id="sharing-title">远程终端</h3><button class="secondary-button" id="toggle-device-sharing" type="button">开始共享</button></div>
+        <p id="device-runtime" role="status">正在读取本机状态…</p>
+        <p class="field-note">使用已保存的中继设置。共享仅在应用运行期间持续，退出应用或停止共享会断开远程终端。</p>
+        <label>本机设备 ID<div class="device-copy-field"><input id="local-device-id" readonly aria-label="本机设备 ID"><button class="secondary-button" id="copy-device-id" type="button">复制</button></div></label>
+      </section>
+      <section class="device-section" aria-labelledby="certificate-title"><div class="device-section-heading"><h3 id="certificate-title">长期连接证书</h3><button class="secondary-button" id="export-device-certificate" type="button">导出证书</button></div>
+        <p class="field-note">证书由软件自动生成。只分享给受信任的人，持有者可以使用当前系统用户的终端。</p>
+        <div class="device-rotation"><label>自动轮换<select id="certificate-rotation"><option value="off">关闭 · 手动轮换</option><option value="24">每 24 小时</option><option value="168">每 7 天</option><option value="720">每 30 天</option></select></label><button class="text-button" id="rotate-device-certificate" type="button">立即轮换</button></div>
+        <p class="field-note">轮换后需要重新导出证书；旧证书无法建立新连接，现有终端继续运行。</p>
+      </section>
+      <section class="device-section" aria-labelledby="temporary-device-title"><div class="device-section-heading"><h3 id="temporary-device-title">临时密码</h3><span id="local-temporary-state" class="device-state">未生成</span></div>
+        <div class="device-rotation"><label>使用时限<select id="temporary-duration"><option value="15">15 分钟</option><option value="30" selected>30 分钟</option><option value="60">1 小时</option></select></label><button class="secondary-button" id="generate-device-password" type="button">生成临时密码</button></div>
+        <div id="device-password-result" hidden><label>本次生成的临时密码<div class="device-copy-field"><input id="local-temporary-password" type="password" readonly autocomplete="off"><button class="secondary-button" id="copy-device-password" type="button">复制</button></div></label></div>
+        <p class="field-note">首次认证成功后仅授权那次访问，断开即失效。重新生成会替换未使用的旧密码。</p>
+        <button class="text-button" id="revoke-device-password" type="button">作废未使用的密码</button>
+      </section>
+      <p id="device-error" class="device-error" role="alert" hidden></p>
+    </div>
+  </dialog>
+
+  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><h2 id="help-title">使用帮助</h2><button class="icon-button" data-close="help-dialog" aria-label="关闭使用帮助" data-icon="close"></button></div><p class="help-lead">项目浏览文件，远程主机独立管理，终端继续工作。</p><ol><li><strong>两个同级分组</strong><p>点击远程主机或项目标题展开，再次点击收起。折叠仅隐藏侧栏内容，当前终端继续保留。</p></li><li><strong>每个项目对应自己的终端</strong><p>打开本地目录成为项目。切换项目恢复各自终端；单击文件只读预览，双击固定标签。远程连接集中在独立会话区。</p></li><li><strong>右上角回到终端</strong><p>终端图标恢复当前工作区的终端，标签栏加号新建会话。右侧快捷指令可添加、搜索、编辑、删除，点击会发送到当前终端并回车。</p></li></ol><p class="help-note">会话在本次应用运行期间保留，重新启动后需重新连接远程主机。文件只读预览支持 UTF-8 文本及代码高亮；文件筛选仅查询已加载的目录。</p><p class="shortcuts"><kbd>⌘B</kbd> 侧栏 <kbd>⌘P</kbd> 找文件 <kbd>⌘O</kbd> 打开项目</p></dialog>
+  <div id="toast" role="status" hidden></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+[package]
+name = "rc-agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "UniRC 被控端 Agent：出站长连接 + PTY 会话"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "rc-agent"
+path = "src/main.rs"
+
+[dependencies]
+rc-core = { workspace = true }
+rc-access.workspace = true
+tokio = { workspace = true }
+tokio-rustls = "0.26"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rustls-pemfile = "2"
+webpki-roots = "0.26"
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+futures-util = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+tokio-tungstenite = { version = "0.28", features = ["native-tls"] }
+portable-pty = "0.9"
+whoami = "1"
+base64 = { workspace = true }
+rand = { workspace = true }

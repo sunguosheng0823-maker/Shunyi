@@ -1,0 +1,33 @@
+[package]
+name = "unirc-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "瞬移终端客户端，Tauri 桌面端"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+rc-core = { workspace = true }
+rc-access.workspace = true
+rc-agent = { path = "../../crates/rc-agent" }
+tokio = { workspace = true }
+tokio-rustls = "0.26"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+rustls-pemfile = "2"
+webpki-roots = "0.26"
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+futures-util = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+tokio-tungstenite = { version = "0.28", features = ["native-tls"] }
+portable-pty = "0.9"
+russh = "0.54"
+base64 = { workspace = true }
+parking_lot = "0.12"
+rand = { workspace = true }

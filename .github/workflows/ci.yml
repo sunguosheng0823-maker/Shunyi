@@ -1,0 +1,34 @@
+name: Accountless terminal checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  protocol:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Backend tests
+        run: cargo test --locked -p rc-access -p rc-core -p rc-agent -p rc-server
+      - name: Backend clippy
+        run: cargo clippy --locked -p rc-access -p rc-agent -p rc-server --all-targets -- -D warnings
+  ui:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/ui/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - run: npm --prefix client/ui ci
+      - run: npm --prefix client/ui run build
+      - run: cargo test --locked -p unirc-client --lib
+      - run: python3 scripts/package_source.py --out release/shunyi-source.zip

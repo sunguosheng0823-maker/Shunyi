@@ -1,0 +1,24 @@
+/* Native window and persistent xterm containers adapt the approved HTML design. */
+.prototype-bar, .prototype-footer { display: none; }
+.window { height: 100vh; margin: 0; border: none; border-radius: 0; max-width: none; }
+.window .traffic-lights { visibility: hidden; }
+.titlebar { -webkit-app-region: drag; }
+.titlebar button, .titlebar-actions { -webkit-app-region: no-drag; }
+#term-ui, #file-ui { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+#empty-main { display: flex; flex: 1; min-height: 0; overflow: auto; }
+#term-stage { position: relative; flex: 1; min-height: 0; padding: 0; overflow: hidden; background: var(--bg); }
+.term-container { position: absolute; inset: 12px 16px; }
+.term-container .xterm { height: 100%; }
+.term-container .xterm-viewport { background: transparent !important; }
+.term-container.not-current { visibility: hidden; }
+#remote-pane .side-footer { gap: 8px; }
+#remote-pane .side-footer #btn-import-hosts { margin-left: auto; }
+#remote-pane .side-footer #btn-export-hosts { margin-left: 0; }
+.status-pending { color: var(--muted); }
+.status-error { color: #e8a3a3; }
+#term-status .text-button { font-size: 11px; }
+#term-status span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.host-dialog label { display: block; }
+.field-inline { display: flex; gap: 9px; }
+.field-inline > label { flex: 1; }
+select { font-family: inherit; }
