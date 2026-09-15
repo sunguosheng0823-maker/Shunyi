@@ -281,9 +281,15 @@ async fn certificate_shell_resize_and_multiple_terminals() -> Result<()> {
     assert!(!client.remote_user.is_empty());
     let (first, mut first_events) = client.open_terminal(80, 24).await?;
     let (second, mut second_events) = client.open_terminal(80, 24).await?;
+    // Establish an interactive shell before testing a user resize: PowerShell
+    // initializes its own console window while the process starts.
+    client
+        .write(&first, &shell_output("first", "ready"))
+        .await?;
+    output_until(&mut first_events, "first:ready").await?;
     client.resize(&first, 123, 37).await?;
     let size_command = if cfg!(windows) {
-        "$s=$Host.UI.RawUI.WindowSize; if ($s.Height -eq 37 -and $s.Width -eq 123) { Write-Output ('resize:'+'ok') } else { Write-Output ('resize:'+'bad:'+$s.Height+':'+$s.Width) }; Write-Output ('size:'+'done')\r\n"
+        "$s=$Host.UI.RawUI.WindowSize; if ($s.Height -eq 37 -and $s.Width -eq 123) { Write-Output ('resize:'+'ok') } else { Write-Output ('resize:'+'bad:'+$s.Height+':'+$s.Width+':buffer:'+$Host.UI.RawUI.BufferSize.Height+':'+$Host.UI.RawUI.BufferSize.Width) }; Write-Output ('size:'+'done')\r\n"
     } else {
         "stty size; printf 'size:%s\\n' done\n"
     };

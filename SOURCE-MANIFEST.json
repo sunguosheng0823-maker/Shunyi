@@ -631,8 +631,8 @@
   },
   {
     "path": "crates/rc-server/tests/e2e.rs",
-    "sha256": "1ae4f1d0204aab0fa90471198c67fcbfe1949d06f6b4f0662369f3a63fc906a5",
-    "bytes": 18334
+    "sha256": "bdd3ac96da1dc7ee4edc547c8f8642bd24255045289f74aa4a8ccb9d466d8868",
+    "bytes": 18704
   },
   {
     "path": "crates/rc-server/tests/fixtures/desktop_engine.py",
