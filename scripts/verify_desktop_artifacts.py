@@ -43,16 +43,28 @@ def deb_payload(path):
     data = path.read_bytes()
     assert data.startswith(b"!<arch>\n")
     cursor = 8
+    payload = {}
     while cursor + 60 <= len(data):
         header = data[cursor:cursor + 60]
         name = header[:16].decode().strip().rstrip("/")
         size = int(header[48:58].decode().strip())
         body = data[cursor + 60:cursor + 60 + size]
-        if name.startswith("data.tar"):
+        if name.startswith(("data.tar", "control.tar")):
             with tarfile.open(fileobj=io.BytesIO(body), mode="r:*") as archive:
-                return {m.name.lstrip("./"): archive.extractfile(m).read() for m in archive.getmembers() if m.isfile() and m.name.lstrip("./").startswith("usr/bin/")}
+                for member in archive.getmembers():
+                    key = member.name.lstrip("./")
+                    if member.isfile() and (key.startswith("usr/bin/") or key == "control"):
+                        payload[key] = archive.extractfile(member).read()
         cursor += 60 + size + size % 2
-    raise ValueError("Debian package has no data archive")
+    assert "control" in payload and "usr/bin/shunyi-desktop-preview" in payload
+    return payload
+
+def normalize_bundle_marker(data, allowed):
+    marker = b"__TAURI_BUNDLE_TYPE_VAR_"
+    assert data.count(marker) == 1, "Expected one Tauri bundle type marker"
+    index = data.index(marker) + len(marker)
+    assert data[index:index + 3] in allowed, "Unexpected Tauri bundle type"
+    return data[:index] + b"UNK" + data[index + 3:]
 
 reports = []
 manifests = list(args.directory.rglob("BUILD.json"))
@@ -81,9 +93,15 @@ for path in manifests:
     if not windows:
         for package in root.glob("*.deb"):
             payload = deb_payload(package)
-            for name in binaries[:2]:
-                assert payload["usr/bin/" + name] == (root / "portable" / name).read_bytes(), name
-        report["deb_client_and_engine_match_portable"] = True
+            fields = dict(line.split(": ", 1) for line in payload["control"].decode().splitlines() if ": " in line and not line.startswith(" "))
+            assert fields["Package"] == "shunyi-desktop-preview", "Invalid or conflicting Debian package name"
+            assert fields["Architecture"] == "amd64"
+            assert payload["usr/bin/shunyi-desktop-engine"] == (root / "portable/shunyi-desktop-engine").read_bytes()
+            # Tauri changes exactly this three-byte marker for each installer format.
+            assert normalize_bundle_marker(payload["usr/bin/shunyi-desktop-preview"], {b"DEB"}) == normalize_bundle_marker((root / "portable/shunyi-desktop-preview").read_bytes(), {b"UNK", b"APP", b"DEB"})
+        report["deb_engine_matches_portable"] = True
+        report["deb_client_matches_except_bundle_type_marker"] = True
+        report["deb_package_name"] = "shunyi-desktop-preview"
     report["passed"] = True
     reports.append(report)
 result = {"builds": reports, "note": "File and package checks are separate from native GUI and input acceptance."}

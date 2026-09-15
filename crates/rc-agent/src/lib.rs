@@ -38,6 +38,43 @@ pub fn default_shell() -> String {
         }
     })
 }
+
+#[cfg(all(test, windows))]
+mod windows_pty_tests {
+    use super::*;
+
+    #[test]
+    fn headless_terminal_starts_resizes_and_closes() {
+        let (finished, outcome) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let result = (|| -> Result<()> {
+                let (output, mut events) = mpsc::channel(wire::QUEUE);
+                eprintln!("native PTY: opening");
+                let terminal = Pty::open("native-lifecycle", 80, 24, output)?;
+                eprintln!("native PTY: resizing");
+                terminal.master.lock().unwrap().resize(size(123, 37))?;
+                terminal
+                    .write
+                    .send(b"Write-Output ('pty:'+'ready')\r\n".to_vec())?;
+                let mut text = String::new();
+                while let Some((_, bytes)) = events.blocking_recv() {
+                    text.push_str(&String::from_utf8_lossy(&bytes));
+                    if text.contains("pty:ready") {
+                        eprintln!("native PTY: closing after real shell output");
+                        drop(terminal);
+                        return Ok(());
+                    }
+                }
+                bail!("PowerShell exited without the expected output");
+            })();
+            let _ = finished.send(result.map_err(|error| error.to_string()));
+        });
+        outcome
+            .recv_timeout(Duration::from_secs(20))
+            .expect("Windows PTY blocked during open, resize, output or close")
+            .expect("Windows PTY lifecycle failed");
+    }
+}
 pub async fn run(config: AgentConfig) -> Result<()> {
     let _instance = config.credentials.lock_agent()?;
     let mut delay = 1;

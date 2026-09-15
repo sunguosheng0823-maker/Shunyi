@@ -45,6 +45,7 @@ for copyright_file in (vcpkg / "installed").glob("*/share/*/copyright"):
     destination = resources / copyright_file.parent.name
     destination.mkdir(exist_ok=True)
     shutil.copy2(copyright_file, destination / "LICENSE.txt")
+shutil.copy2(ROOT / "vendor/portable-pty/LICENSE.md", resources / "PORTABLE-PTY-MIT.txt")
 run(["cargo", "build", "--locked", "--release", "-p", "rc-agent", "-p", "rc-server"])
 config_name = "tauri.desktop-preview.conf.json"
 if not windows:
@@ -53,6 +54,9 @@ if not windows:
     if not choices:
         raise SystemExit("Missing libxdo.so.3; install libxdo-dev before creating the AppImage")
     config = json.loads((ROOT / "client/src-tauri" / config_name).read_text(encoding="utf-8"))
+    # Debian's package identifier must be ASCII; window and launcher labels stay localized.
+    config["productName"] = "shunyi-desktop-preview"
+    config["bundle"]["linux"]["deb"]["desktopTemplate"] = "desktop-preview.desktop.hbs"
     config["bundle"]["linux"]["appimage"] = {"files": {"/usr/lib/libxdo.so.3": str(choices[0].resolve())}}
     config_name = "tauri.desktop-runtime.conf.json"
     (ROOT / "client/src-tauri" / config_name).write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -73,6 +77,8 @@ for pattern in patterns:
     if not packages:
         raise SystemExit(f"Installer missing: {pattern}")
     for package in packages:
+        if package.suffix == ".deb":
+            run(["dpkg-deb", "--info", package])
         shutil.copy2(package, out / package.name)
 with zipfile.ZipFile(out / ("Shunyi-Desktop-Preview-0.2.0-" + target + ".zip"), "w", zipfile.ZIP_DEFLATED) as archive:
     for file in sorted(portable.rglob("*")):

@@ -13,6 +13,25 @@ Windows 和 Linux 预览版与 macOS 使用相同的 UniRC v3 设备认证、单
 
 被控端在「设置 → 本机接入与凭据」选择仅查看或允许控制，填写兼容 v3 的中继地址后开始共享。控制端添加对方的设备 ID 和证书/临时密码，通过主机行的屏幕按钮查看，或右键主机选择控制。控制端与被控端的操作系统可以不同。默认关闭共享；不会自动提权或安装常驻服务。
 
+## 安装与启动
+
+Windows 优先使用 `.exe` 安装器，MSI 作为另一种安装格式提供。安装器支持中文。便携 ZIP 解压后运行 `shunyi-desktop-preview.exe`，保留同目录的 `shunyi-desktop-engine.exe` 和许可文件。便携客户端需要系统已有 WebView2 Runtime；安装器会检查 WebView2。
+
+Ubuntu 安装 DEB 时让 apt 同时处理系统依赖：
+
+```bash
+sudo apt install ./shunyi-desktop-preview_0.2.0_amd64.deb
+```
+
+安装后的菜单名称是「瞬移远控预览」，内部包名与命令名是 `shunyi-desktop-preview`。AppImage 可单独运行：
+
+```bash
+chmod +x shunyi-desktop-preview_0.2.0_amd64.AppImage
+./shunyi-desktop-preview_0.2.0_amd64.AppImage
+```
+
+被控 Linux 设备应在登录界面选择 Xorg/X11 会话。预览包不会更改显示服务器或系统权限。自建中继使用同包 `rc-server` 的 v3 版本，0.1 中继只支持终端；完整连接步骤见 [远控预览说明](desktop-preview.md)。
+
 ## 从源码构建
 
 在目标系统安装 Rust stable、Node.js 22、Python 3、Git 与原生 C/C++ 工具链。Windows 使用 Visual Studio 2022 C++ 开发环境、LLVM、NASM、Protobuf；Linux 使用 `.github/workflows/desktop-preview-build.yml` 中列出的开发包。

@@ -4,7 +4,7 @@
 
 当前版本为 **0.1.0 预发布版**，开源范围是 **无需账号的设备访问**：长期连接证书 + 单次临时密码 + 可自托管中继。账号注册、登录、同账号设备发现、云同步和远程桌面不在此版本中。
 
-正在开发的 **0.2 远控预览版**已接入 RustDesk 采集、VP8 编解码和键鼠引擎，连接认证与中继继续使用 UniRC。独立预览包的构建、使用、许可范围与验收状态见 [远控预览说明](docs/desktop-preview.md)。
+正在开发的 **0.2 远控预览版**已接入 RustDesk 采集、VP8 编解码和键鼠引擎，连接认证与中继继续使用 UniRC。独立预览包的构建、使用、许可范围与验收状态见 [远控预览说明](docs/desktop-preview.md)，其他桌面系统见 [Windows 与 Linux 安装和构建](docs/desktop-cross-platform.md)。
 
 [English](README.en.md) · [快速开始](docs/getting-started.md) · [常见问题](docs/faq.md) · [架构](docs/architecture.md) · [版本记录](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md)
 

@@ -1,5 +1,6 @@
 [workspace]
 resolver = "2"
+exclude = ["vendor/portable-pty"]
 members = [
     "crates/rc-core",
     "crates/rc-access",
@@ -36,3 +37,6 @@ base64 = "0.22"
 [profile.release]
 lto = "thin"
 strip = true
+
+[patch.crates-io]
+portable-pty = { path = "vendor/portable-pty" }

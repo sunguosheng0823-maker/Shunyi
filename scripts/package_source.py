@@ -15,7 +15,7 @@ parser.add_argument("--desktop", action="store_true", help="Include desktop adap
 parser.add_argument("--omit-vendor", action="store_true", help="For a Git checkout only; CI fetches pinned upstream sources before producing a full source archive")
 args = parser.parse_args()
 roots = ["Cargo.toml", "Cargo.lock", "README.md", "README.en.md", "CONTRIBUTING.md", "CHANGELOG.md", "LICENSE", "NOTICE", "SECURITY.md", "ENCRYPTION.md", "CONTEXT.md", ".gitignore",
-         "crates", "client", "protocol", "deploy", "scripts", "licenses", ".github", "docs/device-access-modes.md",
+         "crates", "client", "protocol", "deploy", "scripts", "licenses", "vendor/portable-pty", ".github", "docs/device-access-modes.md",
          "docs/getting-started.md", "docs/faq.md", "docs/architecture.md"]
 if args.desktop:
     roots += ["engines", "docs/desktop-preview.md", "docs/desktop-cross-platform.md", "docs/windows.md", "protocol/UniRC-T-v3-desktop-preview.md"]

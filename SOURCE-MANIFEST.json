@@ -26,8 +26,8 @@
   },
   {
     "path": ".github/workflows/desktop-preview-build.yml",
-    "sha256": "f6cbb6aaed85710ff5deca9fe8e9d1fc6c0ab63e134b008e3b68bfdd2ac57539",
-    "bytes": 4383
+    "sha256": "3180be9c157ca7fe41160b96929289753dc863748dc1ed4d5f30fd62f14f1629",
+    "bytes": 5022
   },
   {
     "path": ".github/workflows/windows-build.yml",
@@ -56,13 +56,13 @@
   },
   {
     "path": "Cargo.lock",
-    "sha256": "e9cb4293dae7564d7ce418b59e920c7ba16b1e6ddfa9e0cc7798b9fbd7c2a44a",
-    "bytes": 160909
+    "sha256": "82999c0f14c8a7ca31f1be5f8d502f329df0f59e21e4cb48db71a57aaae2a8ed",
+    "bytes": 160766
   },
   {
     "path": "Cargo.toml",
-    "sha256": "7c6419c16e0ee3f93e4fbfc8ba439dad8f9320d77a07228e04e28ecd0127642f",
-    "bytes": 825
+    "sha256": "f43637ac9dfba790f0727415b2bfc77a088d8c6c959a7c9cb404fa2a57bc2994",
+    "bytes": 926
   },
   {
     "path": "ENCRYPTION.md",
@@ -86,8 +86,8 @@
   },
   {
     "path": "README.md",
-    "sha256": "4b8f04b1a6a1176cf13a26440d7fcacbbdaed3e73e2403787ddc6589572b24f6",
-    "bytes": 8384
+    "sha256": "57adb0e5242225207f72fc844a747ec33837389203455e88cd8460728d7947e0",
+    "bytes": 8476
   },
   {
     "path": "SECURITY.md",
@@ -108,6 +108,11 @@
     "path": "client/src-tauri/capabilities/default.json",
     "sha256": "b96c3fdd03e7559409cdf6c01682f187a80624f19727e65a777fc711f605cdd6",
     "bytes": 209
+  },
+  {
+    "path": "client/src-tauri/desktop-preview.desktop.hbs",
+    "sha256": "8cef4d93237f5da7ddec3926898d113a8272efa39a34f034f51d8fd5441e687c",
+    "bytes": 207
   },
   {
     "path": "client/src-tauri/icons/128x128.png",
@@ -561,8 +566,8 @@
   },
   {
     "path": "crates/rc-agent/src/lib.rs",
-    "sha256": "78742c94632699a08ac69a495e2b7cc7770e7af91f9b995e77dd18cd7c3543aa",
-    "bytes": 17216
+    "sha256": "bc71baed6d470c1d9f906a954ef69fcf547365e8ad3281a4a7bc1672a611017f",
+    "bytes": 18774
   },
   {
     "path": "crates/rc-agent/src/main.rs",
@@ -676,13 +681,13 @@
   },
   {
     "path": "docs/desktop-cross-platform.md",
-    "sha256": "45a2318c7c906350d0d2164d82ed2d2160b3f78aa8918e99c67a634ef86da71f",
-    "bytes": 2982
+    "sha256": "64a36212aa53c6a4a53529343f2595c085d380a78a589c3d974143bab8d7511f",
+    "bytes": 3957
   },
   {
     "path": "docs/desktop-preview.md",
-    "sha256": "dc7475502da9228281ebf9ba2ccb951055da2ca0a4ad85ea93acfd25ec9469bf",
-    "bytes": 4699
+    "sha256": "4306c03a887640f036630ec408fe95a3d500805eb571adb72f00bcc83b4d7360",
+    "bytes": 4857
   },
   {
     "path": "docs/device-access-modes.md",
@@ -991,8 +996,8 @@
   },
   {
     "path": "scripts/build_desktop_cross.py",
-    "sha256": "9cdf9f79dcd85633bfe952657c7ac9652747f39bd14dc2a3ea9a232d49532a77",
-    "bytes": 4896
+    "sha256": "9894badb5498ee7d22769d6a448dc5bba52fbd232133ca0e559df666df169609",
+    "bytes": 5305
   },
   {
     "path": "scripts/build_desktop_preview.py",
@@ -1026,8 +1031,8 @@
   },
   {
     "path": "scripts/package_source.py",
-    "sha256": "eefd172bf9b4a3076a71e85bccb899126e1c602e8739fb67a84c31636ca83f5a",
-    "bytes": 4453
+    "sha256": "bd37e2f9aceb75d54686686a5146d2fd850dd697fefd2081477fb87f5281e563",
+    "bytes": 4476
   },
   {
     "path": "scripts/prepare_desktop_deps.py",
@@ -1036,13 +1041,18 @@
   },
   {
     "path": "scripts/verify_desktop_artifacts.py",
-    "sha256": "d71cc8cc5a408f299c2a1d9deb7659e08927c983adfd2b5c814f205127135179",
-    "bytes": 4505
+    "sha256": "87dfd5c6c8fe5e807e24afbfb9d247e6a2f113479f6a3de04b649dcbb783b7a3",
+    "bytes": 5722
   },
   {
     "path": "scripts/verify_desktop_ci.py",
     "sha256": "04dba2a8614fb2dc59c92eba342f8107ed2944b13dfe539d364f5c6f182a20f9",
     "bytes": 3783
+  },
+  {
+    "path": "scripts/verify_desktop_launch.py",
+    "sha256": "13768c611a3232f1227c65b80ce9f6407ca2d4d128b6ca785abd36d0fab5e993",
+    "bytes": 3341
   },
   {
     "path": "scripts/verify_desktop_preview.py",
@@ -1053,5 +1063,85 @@
     "path": "scripts/verify_desktop_shutdown.py",
     "sha256": "912d634b2b55859c04cffd8cfe40265f4faffccae8450c919d58abdc3d622f09",
     "bytes": 1995
+  },
+  {
+    "path": "vendor/portable-pty/Cargo.toml",
+    "sha256": "e1a7320efbb4b088352f5ac87c805e2ad96df571b994ac1397e6d6ffdf981c61",
+    "bytes": 2217
+  },
+  {
+    "path": "vendor/portable-pty/Cargo.toml.orig",
+    "sha256": "963885e09998ceab9a1ad2465ce883d9a8a2ab7a0e972400f98e0356aded46f9",
+    "bytes": 936
+  },
+  {
+    "path": "vendor/portable-pty/LICENSE.md",
+    "sha256": "191c46fcf52061382b1c51a70311eb9081381cc158e5899f3739473a9432185b",
+    "bytes": 1068
+  },
+  {
+    "path": "vendor/portable-pty/SHUNYI-PATCH.md",
+    "sha256": "dc8e23b033f6bf1b563387226854c2ec9e099cf2f7b31fa2bcac6633eb59e1c3",
+    "bytes": 1240
+  },
+  {
+    "path": "vendor/portable-pty/examples/bash.rs",
+    "sha256": "bfa0f3d7e2243725952d2c0ac629f6fdbcf94e7d0a85587a43208d3d2b685f74",
+    "bytes": 2492
+  },
+  {
+    "path": "vendor/portable-pty/examples/narrow.rs",
+    "sha256": "5ac4831f51e1661d8866a181cf6150fdd29de1a334255fc42a101498aefc4b99",
+    "bytes": 3305
+  },
+  {
+    "path": "vendor/portable-pty/examples/whoami.rs",
+    "sha256": "a6504d8f5c98d8ec50b88975f3f3b59573d0da1d914ef1d05bc550960e69ec4b",
+    "bytes": 3587
+  },
+  {
+    "path": "vendor/portable-pty/examples/whoami_async.rs",
+    "sha256": "c89932053c4f407353d2159f9a40f794cc52e46da745cf1ed2e3c79a54a72791",
+    "bytes": 2529
+  },
+  {
+    "path": "vendor/portable-pty/src/cmdbuilder.rs",
+    "sha256": "db95387276f7f5a2e6bfd27a0c21ad99090f5d29e3663ad0446becec86748283",
+    "bytes": 27397
+  },
+  {
+    "path": "vendor/portable-pty/src/lib.rs",
+    "sha256": "8b1d45c520f17c8be2d51069bb6ed46a6fa612d0395bc55a5b6e0ef30cc1c004",
+    "bytes": 13378
+  },
+  {
+    "path": "vendor/portable-pty/src/serial.rs",
+    "sha256": "4c1db2410641b15af1c52d17b3e03a294f11d1a843744e27101d22dc91dbd793",
+    "bytes": 9219
+  },
+  {
+    "path": "vendor/portable-pty/src/unix.rs",
+    "sha256": "14c85213b32074d71c8af334531fd027d6a0558dee830282620c88bab056c4b3",
+    "bytes": 12978
+  },
+  {
+    "path": "vendor/portable-pty/src/win/conpty.rs",
+    "sha256": "8af0d7654aad62aaa67685b7b8550bc638b732360f7de1357cc5b0a35bc47ca1",
+    "bytes": 2984
+  },
+  {
+    "path": "vendor/portable-pty/src/win/mod.rs",
+    "sha256": "c983e63d15800f73ac05105a69ec2b53fea482c066ea5559682bd024561f999a",
+    "bytes": 4398
+  },
+  {
+    "path": "vendor/portable-pty/src/win/procthreadattr.rs",
+    "sha256": "0483a5b43794181f02b20175ba15dc4e913663208d94e4a48aa9cc2cd77fdb1c",
+    "bytes": 2183
+  },
+  {
+    "path": "vendor/portable-pty/src/win/psuedocon.rs",
+    "sha256": "dd35f3afd533d3b9f163e201da145c989d96dac83a01ac344e287b1cd8ddf884",
+    "bytes": 6212
   }
 ]
