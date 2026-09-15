@@ -1,0 +1,78 @@
+name: Desktop preview native builds
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/desktop-cross-platform]
+permissions:
+  contents: read
+concurrency:
+  group: desktop-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 100
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+      VCPKG_MAX_CONCURRENCY: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: client/ui/package-lock.json
+      - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            . -> target
+            engines/rustdesk -> ../../target/desktop-engine
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .build/vcpkg/installed
+            .build/vcpkg/downloads
+          key: desktop-vcpkg-${{ runner.os }}-9e593bb18-851d2df88-v1
+      - name: Linux native dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential curl zip unzip tar pkg-config cmake clang nasm yasm protobuf-compiler libssl-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev libxcb-randr0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxdo-dev libxfixes-dev libxrandr-dev libxtst-dev libxi-dev libxinerama-dev libxcursor-dev libasound2-dev libpulse-dev libudev-dev xvfb xauth python3-tk
+      - name: Windows native dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install nasm protoc -y --no-progress
+          "C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "LIBCLANG_PATH=C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - run: npm --prefix client/ui ci
+      - name: Native desktop packages
+        run: python scripts/build_desktop_cross.py
+      - name: Protocol and credential regression
+        run: cargo test --locked -p rc-access -p rc-desktop -p rc-agent -p rc-server
+      - name: Source archive
+        run: python scripts/package_source.py --desktop --out target/desktop-distribution/shunyi-desktop-source.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shunyi-desktop-preview-${{ runner.os }}-${{ github.sha }}
+          path: target/desktop-distribution/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: desktop-build-diagnostics-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .build/vcpkg/buildtrees/**/*.log
+            target/desktop-verification/
+          if-no-files-found: ignore

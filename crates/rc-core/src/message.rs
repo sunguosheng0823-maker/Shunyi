@@ -17,8 +17,6 @@ pub mod ty {
     pub const SESSION_CLOSE: u8 = 10;
     pub const SESSION_RESIZE: u8 = 11;
     pub const ERROR: u8 = 12;
-
-
 }
 
 /// 会话内流编号：v0 仅 PTY。

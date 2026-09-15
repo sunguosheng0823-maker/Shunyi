@@ -6,6 +6,7 @@ license.workspace = true
 description = "Accountless device identity, TLS tunnels and terminal access"
 
 [dependencies]
+rc-desktop.workspace = true
 rc-core.workspace = true
 anyhow.workspace = true
 serde.workspace = true

@@ -36,6 +36,9 @@ async fn main() -> Result<()> {
     )?;
     println!("Disposable loopback fixture: {server}");
     let agent = rc_agent::run(rc_agent::AgentConfig {
+        desktop: std::env::var_os("SHUNYI_DESKTOP_ENGINE")
+            .map(|path| rc_agent::desktop::DesktopConfig::new(PathBuf::from(path), rc_desktop::Permission::Control))
+            .transpose()?,
         server_url: server,
         token: String::new(),
         device_name: "Native acceptance fixture".into(),

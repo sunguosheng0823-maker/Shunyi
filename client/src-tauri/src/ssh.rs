@@ -40,10 +40,16 @@ impl SshHandle {
     }
 }
 
-struct KnownHostKey { host: String, port: u16 }
+struct KnownHostKey {
+    host: String,
+    port: u16,
+}
 impl russh::client::Handler for KnownHostKey {
     type Error = anyhow::Error;
-    async fn check_server_key(&mut self, server_public_key: &russh::keys::PublicKey) -> Result<bool, Self::Error> {
+    async fn check_server_key(
+        &mut self,
+        server_public_key: &russh::keys::PublicKey,
+    ) -> Result<bool, Self::Error> {
         match russh::keys::check_known_hosts(&self.host, self.port, server_public_key) {
             Ok(true) => Ok(true),
             Ok(false) => anyhow::bail!("此 SSH 主机尚未受信任。请先在系统终端使用 ssh 连接并核对主机指纹，写入 ~/.ssh/known_hosts 后再连接。"),
@@ -62,9 +68,22 @@ pub async fn connect(
     let session = state.next_session("ssh");
 
     let config = Arc::new(russh::client::Config::default());
-    let mut handle = russh::client::connect(config, (target.host.as_str(), target.port), KnownHostKey { host: target.host.clone(), port: target.port })
-        .await
-        .map_err(|e| format!("SSH 连接失败 {host}:{port}: {e}", host = target.host, port = target.port))?;
+    let mut handle = russh::client::connect(
+        config,
+        (target.host.as_str(), target.port),
+        KnownHostKey {
+            host: target.host.clone(),
+            port: target.port,
+        },
+    )
+    .await
+    .map_err(|e| {
+        format!(
+            "SSH 连接失败 {host}:{port}: {e}",
+            host = target.host,
+            port = target.port
+        )
+    })?;
 
     match target.auth_type.as_str() {
         "key" => {

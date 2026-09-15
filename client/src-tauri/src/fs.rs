@@ -36,7 +36,11 @@ pub async fn fs_list(dir: String) -> Result<Vec<FsEntry>, String> {
             size,
         });
     }
-    out.sort_by(|a, b| b.is_dir.cmp(&a.is_dir).then(a.name.to_lowercase().cmp(&b.name.to_lowercase())));
+    out.sort_by(|a, b| {
+        b.is_dir
+            .cmp(&a.is_dir)
+            .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    });
     Ok(out)
 }
 
@@ -61,11 +65,17 @@ pub async fn fs_read(path: String) -> Result<FileContent, String> {
     if lines > 8000 {
         return Err("文件超过 8,000 行，暂不加载全文。".into());
     }
-    Ok(FileContent { content, size, lines })
+    Ok(FileContent {
+        content,
+        size,
+        lines,
+    })
 }
 
-/// 当前用户主目录（首个默认项目的根）。
+/// 当前用户主目录（首个默认项目的根）。Windows 用 USERPROFILE，unix 用 HOME。
 #[tauri::command]
 pub async fn home_dir() -> Result<String, String> {
-    std::env::var("HOME").map_err(|_| "无法获取主目录".into())
+    std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .map_err(|_| "无法获取主目录".into())
 }

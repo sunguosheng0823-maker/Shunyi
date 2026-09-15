@@ -7,11 +7,16 @@ use std::{path::PathBuf, sync::Arc};
 pub struct LocalAccess {
     task: Mutex<Option<tokio::task::JoinHandle<()>>>,
     error: Arc<Mutex<Option<String>>>,
+    desktop: Mutex<rc_desktop::Permission>,
 }
 fn store() -> Result<CredentialStore, String> {
     let path = std::env::var_os("UNIRC_STATE_DIR")
         .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".shunyi")))
+        .or_else(|| {
+            // Windows 没有 HOME，取 USERPROFILE（与 rc-agent 主程序保持一致）
+            let home = std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" })?;
+            Some(PathBuf::from(home).join(if cfg!(feature = "desktop-preview") { ".shunyi-desktop-preview" } else { ".shunyi" }))
+        })
         .ok_or("无法确定本机凭据目录")?;
     CredentialStore::open(path).map_err(|e| e.to_string())
 }
@@ -21,6 +26,9 @@ pub struct DeviceStatus {
     running: bool,
     error: Option<String>,
     user: String,
+    desktop_permission: rc_desktop::Permission,
+    desktop_available: bool,
+    desktop_platform: &'static str,
 }
 #[tauri::command]
 pub async fn device_status(
@@ -35,7 +43,11 @@ pub async fn device_status(
             .as_ref()
             .is_some_and(|t| !t.is_finished()),
         error: state.local_access.error.lock().clone(),
-        user: std::env::var("USER").unwrap_or_else(|_| "当前系统用户".into()),
+        user: std::env::var(if cfg!(windows) { "USERNAME" } else { "USER" })
+            .unwrap_or_else(|_| "当前系统用户".into()),
+        desktop_permission: *state.local_access.desktop.lock(),
+        desktop_available: crate::desktop::engine_path().is_ok(),
+        desktop_platform: std::env::consts::OS,
     })
 }
 #[tauri::command]
@@ -43,8 +55,18 @@ pub async fn device_start(
     state: tauri::State<'_, crate::AppState>,
     server: String,
     token: String,
+    desktop_permission: Option<rc_desktop::Permission>,
 ) -> Result<(), String> {
     rc_access::wire::endpoint(&server, "agent").map_err(|e| e.to_string())?;
+    let permission = desktop_permission.unwrap_or_default();
+    let desktop = if permission == rc_desktop::Permission::Denied {
+        None
+    } else {
+        Some(
+            rc_agent::desktop::DesktopConfig::new(crate::desktop::engine_path()?, permission)
+                .map_err(|e| e.to_string())?,
+        )
+    };
     let credentials = store()?;
     // Fail before returning success if a standalone service already owns this identity.
     drop(credentials.lock_agent().map_err(|e| e.to_string())?);
@@ -53,9 +75,11 @@ pub async fn device_start(
         return Ok(());
     }
     *state.local_access.error.lock() = None;
+    *state.local_access.desktop.lock() = permission;
     let error = state.local_access.error.clone();
     *task = Some(tokio::spawn(async move {
         if let Err(failure) = rc_agent::run(rc_agent::AgentConfig {
+            desktop,
             server_url: server,
             token,
             device_name: rc_agent::default_device_name(),

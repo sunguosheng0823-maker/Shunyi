@@ -3571,6 +3571,7 @@ dependencies = [
  "libc",
  "rand 0.8.8",
  "rc-core",
+ "rc-desktop",
  "rcgen",
  "ring",
  "rustls",
@@ -3601,6 +3602,7 @@ dependencies = [
  "rand 0.8.8",
  "rc-access",
  "rc-core",
+ "rc-desktop",
  "rustls",
  "rustls-pemfile",
  "serde",
@@ -3625,6 +3627,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rc-desktop"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "rc-server"
 version = "0.1.0"
 dependencies = [
@@ -3635,6 +3647,7 @@ dependencies = [
  "rc-access",
  "rc-agent",
  "rc-core",
+ "rc-desktop",
  "rustls-pemfile",
  "serde",
  "serde_json",
@@ -5607,6 +5620,7 @@ dependencies = [
  "rc-access",
  "rc-agent",
  "rc-core",
+ "rc-desktop",
  "russh",
  "rustls",
  "rustls-pemfile",

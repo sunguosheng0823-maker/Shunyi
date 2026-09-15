@@ -5,10 +5,14 @@ edition.workspace = true
 license.workspace = true
 description = "瞬移终端客户端，Tauri 桌面端"
 
+[features]
+desktop-preview = []
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+rc-desktop.workspace = true
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 rc-core = { workspace = true }

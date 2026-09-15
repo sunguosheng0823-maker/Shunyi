@@ -2,6 +2,7 @@
 // 原型 DOM/CSS 原样复用（src/proto/），本文件把演示数据替换为真实后端：
 // 项目=本地目录（懒加载文件树+只读预览），终端=xterm 真会话（本地 PTY/SSH/瞬移协议），指令=真实发送。
 import { invoke } from "@tauri-apps/api/core";
+import { makeDesktop } from "./desktop.js";
 import { listen } from "@tauri-apps/api/event";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -20,6 +21,8 @@ const icon = (name) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 document.querySelectorAll("[data-icon]").forEach((el) => (el.innerHTML = icon(el.dataset.icon)));
 
 const inTauri = "__TAURI_INTERNALS__" in window;
+// Windows 用系统原生标题栏，隐藏自绘标题栏（红绿灯是 macOS 专属）；侧栏开关走 Ctrl+B
+if (/Windows/i.test(navigator.userAgent)) document.body.classList.add("platform-win");
 
 const notify = (message) => {
   $("#toast").textContent = message;
@@ -250,14 +253,34 @@ function openWorkspaceTerminal() {
 function makeProject(id, name, rootPath, saved = {}) {
   return { id, name, rootPath, expandedDirs: new Set(Array.isArray(saved.expandedDirs) ? saved.expandedDirs : []), rootExpanded: saved.rootExpanded !== false, fileFilter: saved.fileFilter || "", dirCache: new Map(), dirLoading: new Map(), dirErrors: new Map(), lastActiveTabId: null, lastTerminalId: null, visited: false };
 }
-async function addProject(rootPath) {
+async function addProject(rootPath, customName) {
   const norm = String(rootPath).replace(/\/+$/, "") || "/";
   const existing = projects.find((p) => p.rootPath === norm);
   if (existing) { selectProject(existing.id); notify("项目「" + existing.name + "」已在列表中"); return; }
   rememberProject();
-  const name = norm.split("/").filter(Boolean).pop() || norm;
+  const name = customName || norm.split("/").filter(Boolean).pop() || norm;
   const p = makeProject("project-" + Date.now().toString(36) + "-" + sequence++, name, norm);
   projects.push(p); selectProject(p.id); notify("已添加项目「" + name + "」");
+}
+function renameProject(id, newName) {
+  const p = projects.find((proj) => proj.id === id);
+  if (!p || !newName.trim()) return;
+  p.name = newName.trim();
+  renderProjects(); saveWorkspace();
+  notify("已重命名为「" + p.name + "」");
+}
+function removeProject(id) {
+  const index = projects.findIndex((p) => p.id === id);
+  if (index < 0) return;
+  const p = projects[index];
+  tabs.filter((t) => t.projectId === id).forEach((t) => closeTab(t.id));
+  projects.splice(index, 1);
+  if (activeProjectId === id) {
+    if (projects.length) selectProject(projects[Math.min(index, projects.length - 1)].id);
+    else selectRemoteWorkspace();
+  } else renderProjects();
+  saveWorkspace();
+  notify("已移除项目「" + p.name + "」");
 }
 
 // ---------- 标签页 ----------
@@ -267,7 +290,7 @@ function renderTabs() {
     workspaceTabs()
       .map((t) =>
         '<div class="tab' + (t.type === "file" && !t.pinned ? " preview" : "") + '" role="tab" tabindex="' + (t.id === activeId ? "0" : "-1") + '" aria-selected="' + (t.id === activeId) + '" data-tab="' + esc(t.id) + '" title="' + esc(t.type === "file" ? t.rel + (t.pinned ? " · 已固定" : " · 临时预览，双击固定") : (tabWorkspace(t)?.name || "") + " · " + t.title) + '">' +
-        (t.type === "file" ? fileSymbol(t.name) : '<span class="tab-icon">' + icon("terminal") + "</span>") +
+        (t.type === "file" ? fileSymbol(t.name) : '<span class="tab-icon">' + icon(t.type === "desktop" ? "monitor" : "terminal") + "</span>") +
         '<span class="tab-title">' + esc(t.title) + '</span><button class="tab-close" data-close-tab="' + esc(t.id) + '" aria-label="关闭 ' + esc(t.title) + '">' + icon("close") + "</button></div>"
       )
       .join("") +
@@ -298,6 +321,7 @@ function closeTab(id) {
   closed.disposed = true;
   closed.closed = true;
   if (closed.session) closeBackendSession(closed.kind, closed.session);
+  closed.desktop?.dispose();
   closed._ro?.disconnect();
   closed.term?.dispose();
   closed.container?.remove();
@@ -554,6 +578,27 @@ function connectHost(poolId) {
   return tab;
 }
 
+function openDesktopHost(poolId, control = false) {
+  if (!inTauri) return notify("远程桌面需要在瞬移客户端中使用。");
+  const entry = poolEntry(poolId);
+  const host = hosts.find((h) => h.id === entry?.id);
+  if (!host || entry.protocol !== "unirc") return;
+  if (!settings.serverUrl) return openSettings("请先填写瞬移服务器地址");
+  const existing = tabs.find((t) => t.type === "desktop" && t.hostId === poolId && !t.disposed);
+  if (existing) return activateTab(existing.id);
+  if (host.deviceAuth === "temporary" && !temporaryPasswords.has(entry.id)) return requestTemporaryPassword(entry.id, () => openDesktopHost(entry.id, control));
+  selectRemoteWorkspace({ restore: false });
+  const id = "desktop-" + Date.now().toString(36) + "-" + sequence++;
+  const desktop = makeDesktop({ title: entry.name, control, close: () => closeTab(id), notify });
+  const tab = { id, type: "desktop", kind: "desktop", projectId: null, title: entry.name + " · 桌面", hostId: entry.id, desktop, container: desktop.container, disposed: false };
+  tabs.push(tab);
+  $("#content").appendChild(desktop.container);
+  activateTab(id, { focusTerminal: false });
+  const password = temporaryPasswords.get(entry.id) || "";
+  temporaryPasswords.delete(entry.id);
+  desktop.connect({ server: settings.serverUrl, token: settings.token, deviceId: host.deviceId, authType: host.deviceAuth || "certificate", certificatePath: host.certificatePath || "", temporaryPassword: password, control, display: 0 });
+}
+
 // ---------- 主区渲染 ----------
 function sessionAddress(t) {
   if (t.kind === "local") return "本机 · " + (t.dir || "~");
@@ -562,6 +607,7 @@ function sessionAddress(t) {
 }
 function renderMain({ focusTerminal = false } = {}) {
   const t = activeTab();
+  tabs.filter((tab) => tab.type === "desktop").forEach((tab) => { if (tab !== t) tab.desktop.hide(); else tab.container.hidden = false; });
   $("#open-terminal").classList.toggle("active", t?.type === "terminal");
   syncCommandPanel();
   const termUi = $("#term-ui");
@@ -573,10 +619,11 @@ function renderMain({ focusTerminal = false } = {}) {
     empty.hidden = false;
     empty.innerHTML = activeWorkspace === "remote"
       ? '<div class="empty-main"><span>' + icon("server") + '</span><h2>选择一台主机，打开远程终端</h2><p>远程连接集中保留在这里。<br>从左侧主机列表选择要连接的设备。</p><button class="primary-button" data-action="choose-remote">选择远程主机</button></div>'
-      : '<div class="empty-main"><span>' + icon("terminal") + '</span><h2>' + esc(currentProject()?.name || "项目") + ' · 暂无打开的会话</h2><p>从右上角打开项目终端，或点击下方新建。<br>其他项目与远程连接的会话继续保留。</p><button class="primary-button" data-action="new-terminal">新建本地终端</button><button class="secondary-button" data-action="open-folder">打开项目</button></div>';
+      : '<div class="empty-main"><span>' + icon("terminal") + '</span><h2>' + esc(currentProject()?.name || "项目") + ' · 暂无打开的会话</h2><p>从右上角打开项目终端，或点击下方新建。<br>其他项目与远程连接的会话继续保留。</p><button class="primary-button" data-action="new-terminal">新建本地终端</button><button class="secondary-button" data-action="open-folder">添加项目</button></div>';
     return;
   }
   empty.hidden = true;
+  if (t.type === "desktop") { termUi.hidden = true; fileUi.hidden = true; return; }
   if (t.type === "file") {
     termUi.hidden = true;
     fileUi.hidden = false;
@@ -763,11 +810,40 @@ function openQuick() {
   $("#quick-search").focus();
 }
 function openDirectory() {
-  invoke("pick_folder")
-    .then((dir) => {
-      if (dir) addProject(dir);
-    })
-    .catch((e) => toastErr(e));
+  const dialog = $("#project-dialog");
+  const nameInput = $("#project-name-input");
+  const pathInput = $("#project-path-input");
+  const errorEl = $("#project-form-error");
+  const submitBtn = $("#project-submit");
+  dialog.dataset.mode = "add";
+  $("#project-dialog-title").textContent = "添加项目";
+  $("#project-dialog-desc").textContent = "为本地目录指定一个名称，方便识别。";
+  submitBtn.textContent = "添加";
+  nameInput.value = "";
+  pathInput.value = "";
+  errorEl.hidden = true;
+  dialog.showModal();
+  nameInput.focus();
+}
+function openRenameDialog(id) {
+  const p = projects.find((proj) => proj.id === id);
+  if (!p) return;
+  const dialog = $("#project-dialog");
+  const nameInput = $("#project-name-input");
+  const pathInput = $("#project-path-input");
+  const errorEl = $("#project-form-error");
+  const submitBtn = $("#project-submit");
+  dialog.dataset.mode = "rename";
+  dialog.dataset.projectId = id;
+  $("#project-dialog-title").textContent = "重命名项目";
+  $("#project-dialog-desc").textContent = "修改项目显示名称。";
+  submitBtn.textContent = "保存";
+  nameInput.value = p.name;
+  pathInput.value = p.rootPath;
+  errorEl.hidden = true;
+  dialog.showModal();
+  nameInput.focus();
+  nameInput.select();
 }
 function toastErr(e) {
   notify(String(e?.message || e));
@@ -792,9 +868,9 @@ function renderHosts() {
       .map((name) => {
         const items = matched.filter((h) => h.group === name);
         return '<div class="group-label">' + icon("chevron-down") + "<span>" + esc(name) + "</span><span>" + items.length + "</span></div>" + items.map((h) =>
-          '<button class="host-row' + (current?.type === "terminal" && current.hostId === h.id && current.session ? " active" : "") + '" data-host="' + esc(h.id) + '" title="连接 ' + esc(h.name) + '"><span class="host-glyph">' + icon(h.protocol === "ssh" ? "server" : "monitor") +
+          '<div class="host-entry"><button class="host-row'  + (current?.type === "terminal" && current.hostId === h.id && current.session ? " active" : "") + '" data-host="' + esc(h.id) + '" title="连接 ' + esc(h.name) + '"><span class="host-glyph">' + icon(h.protocol === "ssh" ? "server" : "monitor") +
           '</span><span class="host-info"><span class="host-name"><strong>' + esc(h.name) + '</strong><span class="protocol-tag">' + (h.protocol === "ssh" ? "SSH" : "瞬移") +
-          '</span></span><span class="host-meta">' + esc((h.user && h.user !== "—" ? h.user + "@" : "") + h.address) + '</span></span><span class="connection-dot' + (hostIsOpen(h.id) ? " connected" : "") + '" title="' + (hostIsOpen(h.id) ? "会话已打开" : "尚未连接") + '"></span></button>'
+          '</span></span><span class="host-meta">' + esc((h.user && h.user !== "—" ? h.user + "@" : "") + h.address) + '</span></span><span class="connection-dot' + (hostIsOpen(h.id) ? " connected" : "") + '" title="' + (hostIsOpen(h.id) ? "会话已打开" : "尚未连接") + '"></span></button>' + (h.protocol === "unirc" ? '<button class="host-desktop-button" data-desktop-host="' + esc(h.id) + '" title="查看远程桌面" aria-label="查看 ' + esc(h.name) + ' 的桌面">' + icon("monitor") + '</button>' : '') + '</div>'
         ).join("");
       })
       .join("") || '<div class="empty-hosts">' + (hostPool().length ? '当前条件下没有主机。<button data-action="clear-filters">清除筛选</button><button data-action="manage-hosts">选择显示的主机</button>' : '添加一台主机，开始远程连接。<button data-action="new-host">添加远程主机</button>') + "</div>";
@@ -1249,6 +1325,12 @@ async function refreshDeviceStatus() {
   const status = await invoke("device_status");
   const c = status.credentials;
   localDeviceRunning = status.running;
+  $("#desktop-permission").disabled = status.running || !status.desktop_available;
+  if (status.running) $("#desktop-permission").value = status.desktop_permission;
+  $("#desktop-availability").textContent = status.desktop_available ? "启用桌面后，有效证书或临时密码可获得所选权限。更改权限前请停止共享。" : "远程桌面需要安装瞬移远控预览版。";
+  $(".desktop-permissions").hidden = status.desktop_platform !== "macos";
+  if (status.desktop_available && status.desktop_platform === "linux") $("#desktop-availability").textContent += " Linux 预览版需要已登录的 X11 桌面。";
+  if (status.desktop_available && status.desktop_platform === "windows") $("#desktop-availability").textContent += " Windows 控制限当前登录会话，系统提权界面不在共享范围内。";
   $("#local-device-id").value = c.device_id;
   $("#local-temporary-state").textContent = temporaryStates[c.temporary_state] || "未知";
   $("#toggle-device-sharing").textContent = status.running ? "停止共享" : "开始共享";
@@ -1273,13 +1355,14 @@ $("#device-dialog").addEventListener("close", () => {
   $("#local-temporary-password").value = "";
   $("#device-password-result").hidden = true;
 });
+document.querySelectorAll("[data-desktop-permission]").forEach((button) => { button.onclick = () => deviceAction(() => invoke("desktop_permissions", { kind: button.dataset.desktopPermission })); });
 $("#toggle-device-sharing").onclick = async (e) => {
   const button = e.currentTarget; button.disabled = true;
   await deviceAction(async () => {
     if (localDeviceRunning) await invoke("device_stop");
     else {
       if (!settings.serverUrl) throw new Error("请先在设置中保存中继服务器地址，再开始共享。");
-      await invoke("device_start", { server: settings.serverUrl, token: settings.token });
+      await invoke("device_start", { server: settings.serverUrl, token: settings.token, desktopPermission: $("#desktop-permission").value });
     }
   });
   button.disabled = false;
@@ -1322,6 +1405,31 @@ $("#project-list").onclick = (e) => {
   }
 };
 $("#open-folder").onclick = openDirectory;
+$("#project-pick-folder").onclick = () => {
+  invoke("pick_folder").then((dir) => {
+    if (dir) {
+      $("#project-path-input").value = dir;
+      if (!$("#project-name-input").value) {
+        $("#project-name-input").value = dir.split("/").filter(Boolean).pop() || "";
+      }
+    }
+  }).catch((e) => toastErr(e));
+};
+$("#project-form").onsubmit = (e) => {
+  e.preventDefault();
+  const dialog = $("#project-dialog");
+  const name = $("#project-name-input").value.trim();
+  const path = $("#project-path-input").value.trim();
+  const errorEl = $("#project-form-error");
+  if (!name) { errorEl.textContent = "请输入项目名称"; errorEl.hidden = false; return; }
+  if (dialog.dataset.mode === "rename") {
+    renameProject(dialog.dataset.projectId, name);
+  } else {
+    if (!path) { errorEl.textContent = "请选择目录"; errorEl.hidden = false; return; }
+    addProject(path, name);
+  }
+  dialog.close();
+};
 $("#quick-open").onclick = openQuick;
 $("#root-toggle").onclick = () => {
   currentProject().rootExpanded = !currentProject().rootExpanded;
@@ -1472,7 +1580,7 @@ $("#host-list").addEventListener("contextmenu", (e) => {
   hostMenu?.remove();
   hostMenu = document.createElement("div");
   hostMenu.className = "context-menu";
-  hostMenu.innerHTML = "<button data-hm='edit'>" + icon("edit") + "编辑主机</button><button data-hm='del'>" + icon("trash") + "删除主机</button>";
+  hostMenu.innerHTML = (poolEntry(row.dataset.host)?.protocol === "unirc" ? "<button data-hm='view-desktop'>" + icon("monitor") + "查看远程桌面</button><button data-hm='control-desktop'>" + icon("monitor") + "控制远程桌面</button>" : "") + "<button data-hm='edit'>" + icon("edit") + "编辑主机</button><button data-hm='del'>" + icon("trash") + "删除主机</button>";
   hostMenu.style.left = Math.min(e.clientX, innerWidth - 205) + "px";
   hostMenu.style.top = Math.min(e.clientY, innerHeight - 100) + "px";
   hostMenu.onclick = (ev) => {
@@ -1480,6 +1588,7 @@ $("#host-list").addEventListener("contextmenu", (e) => {
     hostMenu.remove();
     hostMenu = null;
     const savedId = row.dataset.host;
+    if (act === "view-desktop" || act === "control-desktop") { openDesktopHost(savedId, act === "control-desktop"); return; }
     if (act === "edit") openHostEdit(savedId);
     else if (act === "del") {
       if (!savedId.startsWith("h-")) return notify("在线设备由 Agent 管理，暂不支持删除");
@@ -1491,14 +1600,44 @@ $("#host-list").addEventListener("contextmenu", (e) => {
   };
   document.body.appendChild(hostMenu);
 });
+// 项目右键：移除项目
+let projectMenu;
+$("#project-list").addEventListener("contextmenu", (e) => {
+  const row = e.target.closest("[data-project]");
+  if (!row) return;
+  e.preventDefault();
+  projectMenu?.remove();
+  projectMenu = document.createElement("div");
+  projectMenu.className = "context-menu";
+  projectMenu.innerHTML = "<button data-pm='rename'>" + icon("edit") + "重命名</button><button data-pm='remove'>" + icon("trash") + "移除项目</button>";
+  projectMenu.style.left = Math.min(e.clientX, innerWidth - 205) + "px";
+  projectMenu.style.top = Math.min(e.clientY, innerHeight - 70) + "px";
+  projectMenu.onclick = (ev) => {
+    const act = ev.target.closest("[data-pm]")?.dataset.pm;
+    projectMenu.remove();
+    projectMenu = null;
+    const projectId = row.dataset.project;
+    if (act === "rename") openRenameDialog(projectId);
+    else if (act === "remove") {
+      const name = projects.find((p) => p.id === projectId)?.name || "";
+      if (!confirm("移除项目「" + name + "」？已打开的终端将被关闭。")) return;
+      removeProject(projectId);
+    }
+  };
+  document.body.appendChild(projectMenu);
+});
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".context-menu")) {
     closeContextMenu();
     hostMenu?.remove();
     hostMenu = null;
+    projectMenu?.remove();
+    projectMenu = null;
   }
   const close = e.target.closest("[data-close]");
   if (close) $("#" + close.dataset.close).close();
+  const desktopHost = e.target.closest("[data-desktop-host]");
+  if (desktopHost) openDesktopHost(desktopHost.dataset.desktopHost);
   const host = e.target.closest("[data-host]");
   if (host) connectHost(host.dataset.host);
   const file = e.target.closest("[data-file]");

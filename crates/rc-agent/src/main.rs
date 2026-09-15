@@ -72,6 +72,21 @@ async fn main() -> Result<()> {
                 bail!("此版本不允许关闭设备身份认证和端到端 TLS");
             }
             let agent = rc_agent::run(rc_agent::AgentConfig {
+                desktop: match std::env::var("UNIRC_DESKTOP_PERMISSION").as_deref() {
+                    Ok("view") | Ok("control") => Some(rc_agent::desktop::DesktopConfig::new(
+                        PathBuf::from(
+                            std::env::var_os("SHUNYI_DESKTOP_ENGINE")
+                                .context("请设置 SHUNYI_DESKTOP_ENGINE 为引擎绝对路径")?,
+                        ),
+                        if std::env::var("UNIRC_DESKTOP_PERMISSION").as_deref() == Ok("control") {
+                            rc_desktop::Permission::Control
+                        } else {
+                            rc_desktop::Permission::View
+                        },
+                    )?),
+                    Ok("denied") | Err(_) => None,
+                    _ => bail!("UNIRC_DESKTOP_PERMISSION 仅接受 denied、view 或 control"),
+                },
                 server_url,
                 token: std::env::var("UNIRC_TOKEN").unwrap_or_default(),
                 device_name: std::env::var("UNIRC_DEVICE_NAME")

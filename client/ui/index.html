@@ -12,7 +12,7 @@
     <div class="workspace" id="workspace">
       <aside id="sidebar" aria-label="项目、文件与连接">
         <div class="brand-row"><div class="brand"><img src="/src/assets/logo.png" alt="瞬移"><span>瞬移</span></div><button class="icon-button" id="settings-button" title="设置" aria-label="设置" data-icon="settings"></button></div>
-        <div class="primary-actions"><button class="secondary-button" id="open-folder" title="打开本地目录，添加项目 · ⌘O"><span data-icon="folder-open"></span>打开项目</button></div>
+        <div class="primary-actions"><button class="secondary-button" id="open-folder" title="添加本地目录为项目 · ⌘O"><span data-icon="folder-open"></span>添加项目</button></div>
         <button class="sidebar-group-toggle global-remote" id="remote-workspace-button" aria-expanded="false" aria-controls="remote-pane"><span class="sidebar-group-icon" data-icon="server"></span><span class="sidebar-group-name">远程主机</span><span class="sidebar-group-count" id="remote-host-count"></span><span class="sidebar-group-chevron remote-chevron" data-icon="chevron-right"></span></button>
         <section class="side-pane" id="remote-pane" role="region" aria-labelledby="remote-workspace-button" hidden>
           <label class="search-field remote-search"><span data-icon="search"></span><input id="host-search" type="search" placeholder="搜索名称 / 地址…" aria-label="搜索远程主机"></label>
@@ -151,6 +151,23 @@
       </div>
     </form>
   </dialog>
+  <dialog id="project-dialog" class="host-dialog" aria-labelledby="project-dialog-title">
+    <form id="project-form" autocomplete="off">
+      <div class="dialog-header">
+        <div><h2 id="project-dialog-title">添加项目</h2><p id="project-dialog-desc">为本地目录指定一个名称，方便识别。</p></div>
+        <button type="button" class="icon-button" data-close="project-dialog" aria-label="关闭" data-icon="close"></button>
+      </div>
+      <div class="host-form-body">
+        <label>项目名称<input id="project-name-input" name="name" placeholder="如：前端工作区" required maxlength="80"></label>
+        <label>目录路径<div class="host-file-input"><input id="project-path-input" name="path" class="host-technical-input" placeholder="点击选择目录…" readonly required><button type="button" class="secondary-button" id="project-pick-folder">选择目录</button></div></label>
+        <p id="project-form-error" class="host-form-error" role="alert" hidden></p>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="secondary-button" data-close="project-dialog">取消</button>
+        <button type="submit" class="primary-button" id="project-submit">添加</button>
+      </div>
+    </form>
+  </dialog>
   <dialog id="temporary-dialog" class="host-dialog" aria-labelledby="temporary-title"><form id="temporary-form" autocomplete="off">
     <div class="dialog-header"><div><h2 id="temporary-title">临时连接</h2><p id="temporary-target"></p></div><button type="button" class="icon-button" data-close="temporary-dialog" aria-label="取消临时连接" data-icon="close"></button></div>
     <label>临时密码<input name="password" type="password" autocomplete="new-password" required maxlength="128" placeholder="输入新的临时密码"></label>
@@ -172,7 +189,13 @@
         <p class="field-note">使用已保存的中继设置。共享仅在应用运行期间持续，退出应用或停止共享会断开远程终端。</p>
         <label>本机设备 ID<div class="device-copy-field"><input id="local-device-id" readonly aria-label="本机设备 ID"><button class="secondary-button" id="copy-device-id" type="button">复制</button></div></label>
       </section>
-      <section class="device-section" aria-labelledby="certificate-title"><div class="device-section-heading"><h3 id="certificate-title">长期连接证书</h3><button class="secondary-button" id="export-device-certificate" type="button">导出证书</button></div>
+      <section class="device-section" aria-labelledby="desktop-sharing-title">
+      <div class="device-section-heading"><h3 id="desktop-sharing-title">远程桌面</h3><span class="device-state">预览版</span></div>
+      <label class="desktop-policy">共享权限<select id="desktop-permission"><option value="denied">关闭远程桌面（默认）</option><option value="view">仅允许查看屏幕</option><option value="control">允许查看和控制键盘鼠标</option></select></label>
+      <p class="field-note" id="desktop-availability">正在检查远控引擎…</p>
+      <div class="desktop-permissions"><button type="button" class="text-button" data-desktop-permission="screen">录屏权限</button><button type="button" class="text-button" data-desktop-permission="input">辅助功能权限</button></div>
+    </section>
+    <section class="device-section" aria-labelledby="certificate-title"><div class="device-section-heading"><h3 id="certificate-title">长期连接证书</h3><button class="secondary-button" id="export-device-certificate" type="button">导出证书</button></div>
         <p class="field-note">证书由软件自动生成。只分享给受信任的人，持有者可以使用当前系统用户的终端。</p>
         <div class="device-rotation"><label>自动轮换<select id="certificate-rotation"><option value="off">关闭 · 手动轮换</option><option value="24">每 24 小时</option><option value="168">每 7 天</option><option value="720">每 30 天</option></select></label><button class="text-button" id="rotate-device-certificate" type="button">立即轮换</button></div>
         <p class="field-note">轮换后需要重新导出证书；旧证书无法建立新连接，现有终端继续运行。</p>
@@ -187,7 +210,7 @@
     </div>
   </dialog>
 
-  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><h2 id="help-title">使用帮助</h2><button class="icon-button" data-close="help-dialog" aria-label="关闭使用帮助" data-icon="close"></button></div><p class="help-lead">项目浏览文件，远程主机独立管理，终端继续工作。</p><ol><li><strong>两个同级分组</strong><p>点击远程主机或项目标题展开，再次点击收起。折叠仅隐藏侧栏内容，当前终端继续保留。</p></li><li><strong>每个项目对应自己的终端</strong><p>打开本地目录成为项目。切换项目恢复各自终端；单击文件只读预览，双击固定标签。远程连接集中在独立会话区。</p></li><li><strong>右上角回到终端</strong><p>终端图标恢复当前工作区的终端，标签栏加号新建会话。右侧快捷指令可添加、搜索、编辑、删除，点击会发送到当前终端并回车。</p></li></ol><p class="help-note">会话在本次应用运行期间保留，重新启动后需重新连接远程主机。文件只读预览支持 UTF-8 文本及代码高亮；文件筛选仅查询已加载的目录。</p><p class="shortcuts"><kbd>⌘B</kbd> 侧栏 <kbd>⌘P</kbd> 找文件 <kbd>⌘O</kbd> 打开项目</p></dialog>
+  <dialog id="help-dialog" class="help-dialog" aria-labelledby="help-title"><div class="dialog-header"><h2 id="help-title">使用帮助</h2><button class="icon-button" data-close="help-dialog" aria-label="关闭使用帮助" data-icon="close"></button></div><p class="help-lead">项目浏览文件，远程主机独立管理，终端继续工作。</p><ol><li><strong>两个同级分组</strong><p>点击远程主机或项目标题展开，再次点击收起。折叠仅隐藏侧栏内容，当前终端继续保留。</p></li><li><strong>每个项目对应自己的终端</strong><p>添加本地目录为项目，可自定义名称。切换项目恢复各自终端；单击文件只读预览，双击固定标签。远程连接集中在独立会话区。</p></li><li><strong>右上角回到终端</strong><p>终端图标恢复当前工作区的终端，标签栏加号新建会话。右侧快捷指令可添加、搜索、编辑、删除，点击会发送到当前终端并回车。</p></li></ol><p class="help-note">会话在本次应用运行期间保留，重新启动后需重新连接远程主机。文件只读预览支持 UTF-8 文本及代码高亮；文件筛选仅查询已加载的目录。</p><p class="shortcuts"><kbd>⌘B</kbd> 侧栏 <kbd>⌘P</kbd> 找文件 <kbd>⌘O</kbd> 添加项目</p></dialog>
   <div id="toast" role="status" hidden></div>
   <script type="module" src="/src/main.js"></script>
 </body>

@@ -1,0 +1,25 @@
+[package]
+name = "shunyi-desktop-engine"
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+publish = false
+
+# Deliberately built separately from the delivered terminal workspace.
+[workspace]
+exclude = ["vendor/rustdesk", "vendor/rustdesk/libs/*"]
+
+[dependencies]
+scrap = { path = "vendor/rustdesk/libs/scrap" }
+enigo = { path = "vendor/rustdesk/libs/enigo" }
+base = { path = "vendor/rustdesk/libs/base" }
+rc-desktop = { path = "../../crates/rc-desktop" }
+anyhow = "1"
+protobuf = "3.7"
+tokio = { version = "1", features = ["rt", "fs", "io-std", "io-util", "macros", "sync", "time"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = "1"

@@ -18,8 +18,8 @@ struct Terminal {
 }
 #[derive(Default)]
 pub struct UnircConn {
-    connecting: tokio::sync::Mutex<()>,
-    devices: Mutex<HashMap<String, Weak<AccessClient>>>,
+    pub(crate) connecting: tokio::sync::Mutex<()>,
+    pub(crate) devices: Mutex<HashMap<String, Weak<AccessClient>>>,
     terminals: Mutex<HashMap<String, Terminal>>,
 }
 impl UnircConn {

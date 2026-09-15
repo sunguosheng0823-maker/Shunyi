@@ -26,7 +26,8 @@ impl Drop for Fixture {
     }
 }
 impl Fixture {
-    async fn new() -> Result<Self> {
+    async fn new() -> Result<Self> { Self::with_desktop(None).await }
+    async fn with_desktop(desktop: Option<rc_agent::desktop::DesktopConfig>) -> Result<Self> {
         let dir = tempfile::tempdir()?;
         let store = CredentialStore::open(dir.path().join("device"))?;
         let device = store.public_identity()?.0;
@@ -36,6 +37,7 @@ impl Fixture {
         let (address, relay) = rc_server::bind("127.0.0.1:0".parse()?, String::new()).await?;
         let server = format!("ws://{address}");
         let agent = tokio::spawn(rc_agent::run(rc_agent::AgentConfig {
+            desktop,
             server_url: server.clone(),
             token: String::new(),
             device_name: "integration-device".into(),
@@ -83,6 +85,83 @@ impl Fixture {
             .await
     }
 }
+
+#[cfg(unix)]
+fn desktop_config(dir: &std::path::Path, permission: rc_desktop::Permission) -> Result<rc_agent::desktop::DesktopConfig> {
+    use std::os::unix::fs::PermissionsExt;
+    let path = dir.join("synthetic-desktop-engine");
+    std::fs::write(&path, include_bytes!("fixtures/desktop_engine.py"))?;
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700))?;
+    rc_agent::desktop::DesktopConfig::new(path, permission)
+}
+
+async fn desktop_event(rx: &mut mpsc::Receiver<rc_access::client::DesktopEvent>) -> Result<rc_access::client::DesktopEvent> {
+    tokio::time::timeout(Duration::from_secs(10), rx.recv()).await?.context("desktop channel closed")
+}
+
+#[tokio::test]
+async fn desktop_version_rejection_does_not_consume_temporary_password() -> Result<()> {
+    let f = Fixture::new().await?;
+    let password = f.store.create_temporary(300)?;
+    let result = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Temporary(password.clone()) }).await;
+    assert!(result.is_err());
+    assert_eq!(f.store.status()?.temporary_state, "unused");
+    let terminal = f.connect(Credential::Temporary(password)).await?;
+    terminal.open_terminal(80, 24).await?;
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn desktop_fragments_coexist_with_terminal_and_reject_readonly_input() -> Result<()> {
+    use rc_access::client::DesktopEvent;
+    let dir = tempfile::tempdir()?;
+    let f = Fixture::with_desktop(Some(desktop_config(dir.path(), rc_desktop::Permission::View)?)).await?;
+    let client = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Certificate(f.certificate.clone()) }).await?;
+    let (terminal, mut output) = client.open_terminal(80, 24).await?;
+    let (_, mut denied) = client.open_desktop(0, true).await?;
+    assert!(matches!(desktop_event(&mut denied).await?, DesktopEvent::Closed(_)));
+    let (desktop, mut events) = client.open_desktop(0, false).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: false, .. }));
+    match desktop_event(&mut events).await? {
+        DesktopEvent::Frame { data, .. } => assert_eq!(data, b"frame-test-".repeat(60000)),
+        _ => anyhow::bail!("expected complete large frame"),
+    }
+    // Malicious view-only peer attempts input; enforcement happens on the agent.
+    client.desktop_input(&desktop, rc_desktop::Input::Key { key: "KeyA".into(), down: true }).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Closed(_)));
+    assert!(!client.is_closed());
+    client.write(&terminal, b"printf 'DESKTOP_VIEW_TEST_OK\\n'\r").await?;
+    output_until(&mut output, "DESKTOP_VIEW_TEST_OK").await?;
+    let (desktop, mut events) = client.open_desktop(0, false).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { .. }));
+    client.close_terminal(&terminal).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Frame { .. }));
+    assert!(!client.is_closed());
+    client.close_desktop(&desktop).await?;
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn temporary_desktop_auth_is_single_use_and_releases_capture_slot() -> Result<()> {
+    use rc_access::client::DesktopEvent;
+    let dir = tempfile::tempdir()?;
+    let f = Fixture::with_desktop(Some(desktop_config(dir.path(), rc_desktop::Permission::Control)?)).await?;
+    let password = f.store.create_temporary(300)?;
+    let options = || ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Temporary(password.clone()) };
+    let client = AccessClient::connect_desktop(options()).await?;
+    let (_, mut events) = client.open_desktop(0, true).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: true, .. }));
+    assert!(AccessClient::connect_desktop(options()).await.is_err());
+    drop(client); drop(events);
+    // Wait for transport cleanup, then use a new certificate session.
+    tokio::time::sleep(Duration::from_millis(250)).await;
+    let client = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Certificate(f.certificate.clone()) }).await?;
+    let (_, mut events) = client.open_desktop(0, true).await?;
+    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: true, .. }));
+    Ok(())
+}
 async fn output_until(events: &mut mpsc::Receiver<TerminalEvent>, needle: &str) -> Result<String> {
     tokio::time::timeout(Duration::from_secs(8), async {
         let mut output = String::new();
@@ -110,11 +189,19 @@ async fn output_until(events: &mut mpsc::Receiver<TerminalEvent>, needle: &str) 
 async fn assert_shell(client: &AccessClient, marker: &str) -> Result<()> {
     let (id, mut events) = client.open_terminal(110, 35).await?;
     client
-        .write(&id, format!("printf 'proof:%s\\n' '{marker}'\n").as_bytes())
+        .write(&id, &shell_output("proof", marker))
         .await?;
     output_until(&mut events, &format!("proof:{marker}")).await?;
     client.close_terminal(&id).await?;
     Ok(())
+}
+
+fn shell_output(label: &str, marker: &str) -> Vec<u8> {
+    if cfg!(windows) {
+        format!("Write-Output ('{label}:' + '{marker}')\r\n").into_bytes()
+    } else {
+        format!("printf '{label}:%s\\n' '{marker}'\n").into_bytes()
+    }
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -125,14 +212,17 @@ async fn certificate_shell_resize_and_multiple_terminals() -> Result<()> {
     let (first, mut first_events) = client.open_terminal(80, 24).await?;
     let (second, mut second_events) = client.open_terminal(80, 24).await?;
     client.resize(&first, 123, 37).await?;
-    client
-        .write(&first, b"stty size; printf 'size:%s\n' done\n")
-        .await?;
+    let size_command = if cfg!(windows) {
+        "$s=$Host.UI.RawUI.WindowSize; Write-Output ($s.Height.ToString()+' '+$s.Width.ToString()); Write-Output ('size:'+'done')\r\n"
+    } else {
+        "stty size; printf 'size:%s\\n' done\n"
+    };
+    client.write(&first, size_command.as_bytes()).await?;
     let output = output_until(&mut first_events, "size:done").await?;
     assert!(output.contains("37 123"), "PTY resize was not applied");
     client.close_terminal(&first).await?;
     client
-        .write(&second, b"printf 'second:%s\n' alive\n")
+        .write(&second, &shell_output("second", "alive"))
         .await?;
     output_until(&mut second_events, "second:alive").await?;
     client.close_terminal(&second).await?;
@@ -167,7 +257,7 @@ async fn temporary_password_claim_is_single_use_and_survives_disconnect() -> Res
     let (second, mut events) = client.open_terminal(80, 24).await?;
     client.close_terminal(&first).await?;
     client
-        .write(&second, b"printf 'temporary:%s\n' alive\n")
+        .write(&second, &shell_output("temporary", "alive"))
         .await?;
     output_until(&mut events, "temporary:alive").await?;
     drop(client); // Abrupt network loss, not a graceful logout.
@@ -195,7 +285,7 @@ async fn certificate_rotation_rejects_old_new_connections_preserves_live_termina
     let (id, mut events) = client.open_terminal(80, 24).await?;
     fixture.store.rotate_certificate()?;
     assert!(fixture.certificate_client().await.is_err());
-    client.write(&id, b"printf 'rotation:%s\n' live\n").await?;
+    client.write(&id, &shell_output("rotation", "live")).await?;
     output_until(&mut events, "rotation:live").await?;
     assert_shell(
         fixture.certificate_after_rotation().await?.as_ref(),

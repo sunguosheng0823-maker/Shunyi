@@ -37,11 +37,28 @@ pub enum TerminalEvent {
     Data(Vec<u8>),
     Closed(String),
 }
+
+#[derive(Debug)]
+pub enum DesktopEvent {
+    Opened {
+        display: rc_desktop::DisplayInfo,
+        control: bool,
+    },
+    Frame {
+        sequence: u64,
+        width: u32,
+        height: u32,
+        data: Vec<u8>,
+    },
+    Closed(String),
+}
 type OpenReply = oneshot::Sender<std::result::Result<(), String>>;
 struct Inner {
     out: mpsc::Sender<(Access, Vec<u8>)>,
     pending: Mutex<HashMap<String, OpenReply>>,
     terminals: Mutex<HashMap<String, mpsc::Sender<TerminalEvent>>>,
+    desktops: Mutex<HashMap<String, mpsc::Sender<DesktopEvent>>>,
+    version: u8,
     closed: AtomicBool,
 }
 pub struct AccessClient {
@@ -56,11 +73,22 @@ impl Drop for AccessClient {
 }
 impl AccessClient {
     pub async fn connect(options: ConnectOptions) -> Result<Arc<Self>> {
-        timeout(Duration::from_secs(20), Self::connect_inner(options))
-            .await
-            .context("连接超时，请检查设备是否在线")?
+        timeout(
+            Duration::from_secs(20),
+            Self::connect_inner(options, wire::VERSION),
+        )
+        .await
+        .context("连接超时，请检查设备是否在线")?
     }
-    async fn connect_inner(options: ConnectOptions) -> Result<Arc<Self>> {
+    pub async fn connect_desktop(options: ConnectOptions) -> Result<Arc<Self>> {
+        timeout(
+            Duration::from_secs(20),
+            Self::connect_inner(options, wire::DESKTOP_VERSION),
+        )
+        .await
+        .context("远程桌面连接超时")?
+    }
+    async fn connect_inner(options: ConnectOptions, version: u8) -> Result<Arc<Self>> {
         ensure!(
             options.device_id.len() == 67,
             "请输入新版本证书对应的完整设备 ID"
@@ -77,7 +105,7 @@ impl AccessClient {
         socket
             .send(Message::Binary(
                 Relay::Hello {
-                    version: wire::VERSION,
+                    version,
                     token: options.token,
                 }
                 .packet(vec![])?
@@ -175,6 +203,8 @@ impl AccessClient {
             out,
             pending: Mutex::default(),
             terminals: Mutex::default(),
+            desktops: Mutex::default(),
+            version,
             closed: AtomicBool::new(false),
         });
         let state = inner.clone();
@@ -191,10 +221,59 @@ impl AccessClient {
                 Ok::<_, anyhow::Error>(())
             };
             let receiving = async {
+                let mut frames: HashMap<String, rc_desktop::Assembler> = HashMap::new();
                 loop {
                     let (message, bytes) =
                         timeout(Duration::from_secs(45), wire::read_access(&mut reader)).await??;
                     match message {
+                        Access::DesktopOpened {
+                            desktop,
+                            display,
+                            control,
+                        } => {
+                            display.validate()?;
+                            let target = state.desktops.lock().unwrap().get(&desktop).cloned();
+                            if let Some(target) = target {
+                                target
+                                    .send(DesktopEvent::Opened { display, control })
+                                    .await
+                                    .context("桌面已关闭")?;
+                            }
+                        }
+                        Access::DesktopFrame {
+                            desktop,
+                            sequence,
+                            offset,
+                            total,
+                            width,
+                            height,
+                        } => {
+                            let target = state.desktops.lock().unwrap().get(&desktop).cloned();
+                            if let Some(target) = target {
+                                if let Some(data) = frames
+                                    .entry(desktop)
+                                    .or_default()
+                                    .push(sequence, offset, total, width, height, &bytes)?
+                                {
+                                    target
+                                        .send(DesktopEvent::Frame {
+                                            sequence,
+                                            width,
+                                            height,
+                                            data,
+                                        })
+                                        .await
+                                        .context("桌面已关闭")?;
+                                }
+                            }
+                        }
+                        Access::DesktopClosed { desktop, reason } => {
+                            frames.remove(&desktop);
+                            let target = state.desktops.lock().unwrap().remove(&desktop);
+                            if let Some(target) = target {
+                                let _ = target.send(DesktopEvent::Closed(reason)).await;
+                            }
+                        }
                         Access::Opened { terminal } => {
                             if let Some(reply) = state.pending.lock().unwrap().remove(&terminal) {
                                 let _ = reply.send(Ok(()));
@@ -250,12 +329,19 @@ impl AccessClient {
             for (_, target) in terminals {
                 let _ = target.try_send(TerminalEvent::Closed(reason.clone()));
             }
+            let desktops = std::mem::take(&mut *state.desktops.lock().unwrap());
+            for (_, target) in desktops {
+                let _ = target.try_send(DesktopEvent::Closed(reason.clone()));
+            }
         });
         Ok(Arc::new(Self {
             inner,
             task,
             remote_user,
         }))
+    }
+    pub fn supports_desktop(&self) -> bool {
+        self.inner.version >= wire::DESKTOP_VERSION
     }
     pub fn is_closed(&self) -> bool {
         self.inner.closed.load(Ordering::SeqCst) || self.task.is_finished()
@@ -299,6 +385,59 @@ impl AccessClient {
             return Err(error);
         }
         Ok((id, receiver))
+    }
+    pub async fn open_desktop(
+        &self,
+        display: u32,
+        control: bool,
+    ) -> Result<(String, mpsc::Receiver<DesktopEvent>)> {
+        ensure!(
+            self.inner.version >= wire::DESKTOP_VERSION && !self.is_closed(),
+            "请建立远程桌面连接"
+        );
+        let id = uuid::Uuid::new_v4().to_string();
+        let (events, receiver) = mpsc::channel(2);
+        {
+            let mut desktops = self.inner.desktops.lock().unwrap();
+            ensure!(desktops.is_empty(), "每个设备通道只允许一个桌面");
+            desktops.insert(id.clone(), events);
+        }
+        if let Err(error) = self
+            .send(
+                Access::DesktopOpen {
+                    desktop: id.clone(),
+                    display,
+                    control,
+                },
+                vec![],
+            )
+            .await
+        {
+            self.inner.desktops.lock().unwrap().remove(&id);
+            return Err(error);
+        }
+        Ok((id, receiver))
+    }
+    pub async fn desktop_input(&self, desktop: &str, event: rc_desktop::Input) -> Result<()> {
+        event.validate()?;
+        self.send(
+            Access::DesktopInput {
+                desktop: desktop.into(),
+                event,
+            },
+            vec![],
+        )
+        .await
+    }
+    pub async fn close_desktop(&self, desktop: &str) -> Result<()> {
+        self.inner.desktops.lock().unwrap().remove(desktop);
+        self.send(
+            Access::DesktopClose {
+                desktop: desktop.into(),
+            },
+            vec![],
+        )
+        .await
     }
     async fn send(&self, message: Access, data: Vec<u8>) -> Result<()> {
         ensure!(!self.is_closed(), "连接已断开");

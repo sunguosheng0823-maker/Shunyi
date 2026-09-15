@@ -11,6 +11,10 @@ pub const MAX_PACKET: usize = 64 * 1024;
 pub const CHUNK: usize = 16 * 1024;
 pub const QUEUE: usize = 32;
 pub const VERSION: u8 = 2;
+pub const DESKTOP_VERSION: u8 = 3;
+pub fn supported(version: u8) -> bool {
+    matches!(version, VERSION | DESKTOP_VERSION)
+}
 const RELAY_TYPE: u8 = 50;
 const ACCESS_TYPE: u8 = 51;
 
@@ -105,6 +109,35 @@ pub enum Access {
     Error {
         terminal: Option<String>,
         message: String,
+    },
+    DesktopOpen {
+        desktop: String,
+        display: u32,
+        control: bool,
+    },
+    DesktopOpened {
+        desktop: String,
+        display: rc_desktop::DisplayInfo,
+        control: bool,
+    },
+    DesktopFrame {
+        desktop: String,
+        sequence: u64,
+        offset: usize,
+        total: usize,
+        width: u32,
+        height: u32,
+    },
+    DesktopInput {
+        desktop: String,
+        event: rc_desktop::Input,
+    },
+    DesktopClose {
+        desktop: String,
+    },
+    DesktopClosed {
+        desktop: String,
+        reason: String,
     },
     Ping,
     Pong,

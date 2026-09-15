@@ -29,6 +29,7 @@ tracing-subscriber = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
+rc-desktop.workspace = true
 tempfile = "3"
 rc-agent = { path = "../rc-agent" }
 tokio-tungstenite = { version = "0.28", features = ["native-tls"] }

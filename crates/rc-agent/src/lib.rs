@@ -1,4 +1,5 @@
 //! Accountless agent. A shell is created only inside an authenticated TLS access session.
+pub mod desktop;
 use anyhow::{bail, ensure, Context, Result};
 use futures_util::{SinkExt, StreamExt};
 use rc_access::{
@@ -23,6 +24,7 @@ pub struct AgentConfig {
     pub token: String,
     pub device_name: String,
     pub credentials: CredentialStore,
+    pub desktop: Option<desktop::DesktopConfig>,
 }
 pub fn default_device_name() -> String {
     whoami::fallible::hostname().unwrap_or_else(|_| "Shunyi device".into())
@@ -83,7 +85,11 @@ async fn connection(config: &AgentConfig) -> Result<()> {
     socket
         .send(Message::Binary(
             Relay::Register {
-                version: wire::VERSION,
+                version: if config.desktop.is_some() {
+                    wire::DESKTOP_VERSION
+                } else {
+                    wire::VERSION
+                },
                 device_id: device_id.clone(),
                 name: config.device_name.clone(),
                 ca_pem,
@@ -137,9 +143,9 @@ async fn connection(config: &AgentConfig) -> Result<()> {
                         if tunnels.len() >= 32 || tunnels.contains_key(&tunnel) { out.try_send(Relay::Close { tunnel }.packet(vec![])?).context("中继输出队列繁忙")?; continue; }
                         let (incoming, receiver) = mpsc::channel(wire::QUEUE);
                         let stream = wire::tunnel_stream(tunnel.clone(), out.clone(), receiver);
-                        tunnels.insert(tunnel.clone(), incoming); let store = config.credentials.clone();
+                        tunnels.insert(tunnel.clone(), incoming); let store = config.credentials.clone(); let desktop_config = config.desktop.clone();
                         accesses.spawn(async move {
-                            if let Err(error) = serve_access(store, stream).await { tracing::debug!(%error, "设备访问已结束"); }
+                            if let Err(error) = serve_access(store, stream, desktop_config).await { tracing::debug!(%error, "设备访问已结束"); }
                             tunnel
                         });
                     },
@@ -154,7 +160,11 @@ async fn connection(config: &AgentConfig) -> Result<()> {
     }
 }
 
-async fn serve_access(store: CredentialStore, stream: tokio::io::DuplexStream) -> Result<()> {
+async fn serve_access(
+    store: CredentialStore,
+    stream: tokio::io::DuplexStream,
+    desktop_config: Option<desktop::DesktopConfig>,
+) -> Result<()> {
     let acceptor = tokio_rustls::TlsAcceptor::from(store.server_config()?);
     let mut tls = timeout(Duration::from_secs(10), acceptor.accept(stream))
         .await
@@ -200,6 +210,7 @@ async fn serve_access(store: CredentialStore, stream: tokio::io::DuplexStream) -
     let (reader, mut writer) = tokio::io::split(tls);
     let (events, mut event_rx) = mpsc::channel::<(Access, Vec<u8>)>(wire::QUEUE);
     let mut terminals: HashMap<String, Pty> = HashMap::new();
+    let mut desktops: HashMap<String, desktop::Desktop> = HashMap::new();
     let mut opened = false;
     let mut idle = tokio::time::interval(Duration::from_secs(5));
     let began = std::time::Instant::now();
@@ -212,6 +223,34 @@ async fn serve_access(store: CredentialStore, stream: tokio::io::DuplexStream) -
             next = input.next() => {
                 let (message, bytes) = next.context("设备访问已断开")??; last_input = std::time::Instant::now();
                 match message {
+                    Access::DesktopOpen { desktop: id, display, control } => {
+                        let result = async {
+                            ensure!(desktops.is_empty() && uuid::Uuid::parse_str(&id).is_ok(), "桌面请求无效或已有桌面会话");
+                            let config = desktop_config.as_ref().context("被控设备未开启远程桌面共享")?;
+                            desktop::Desktop::open(config, &id, display, control, events.clone()).await
+                        }.await;
+                        match result {
+                            Ok((desktop, info)) => {
+                                desktops.insert(id.clone(), desktop); opened = true;
+                                wire::write_access(&mut writer, &Access::DesktopOpened { desktop: id, display: info, control }, vec![]).await?;
+                            }
+                            Err(error) => wire::write_access(&mut writer, &Access::DesktopClosed { desktop: id, reason: error.to_string() }, vec![]).await?,
+                        }
+                    },
+                    Access::DesktopInput { desktop, event } => {
+                        if let Some(view) = desktops.get(&desktop) {
+                            if let Err(error) = view.input(event) {
+                                desktops.remove(&desktop);
+                                wire::write_access(&mut writer, &Access::DesktopClosed { desktop, reason: error.to_string() }, vec![]).await?;
+                                if opened && terminals.is_empty() && desktops.is_empty() { return Ok(()); }
+                            }
+                        }
+                    },
+                    Access::DesktopClose { desktop } => {
+                        desktops.remove(&desktop);
+                        wire::write_access(&mut writer, &Access::DesktopClosed { desktop, reason: "桌面已断开".into() }, vec![]).await?;
+                        if opened && terminals.is_empty() && desktops.is_empty() { return Ok(()); }
+                    },
                     Access::Open { terminal, cols, rows } => {
                         if terminals.len() >= 16 || terminals.contains_key(&terminal) || uuid::Uuid::parse_str(&terminal).is_err() {
                             wire::write_access(&mut writer, &Access::Error { terminal: Some(terminal), message: "终端数量已达到上限或请求无效".into() }, vec![]).await?; continue;
@@ -226,7 +265,7 @@ async fn serve_access(store: CredentialStore, stream: tokio::io::DuplexStream) -
                     Access::Close { terminal } => {
                         terminals.remove(&terminal);
                         wire::write_access(&mut writer, &Access::Closed { terminal, reason: "终端已关闭".into() }, vec![]).await?;
-                        if opened && terminals.is_empty() { return Ok(()); }
+                        if opened && terminals.is_empty() && desktops.is_empty() { return Ok(()); }
                     },
                     Access::Ping => wire::write_access(&mut writer, &Access::Pong, vec![]).await?,
                     _ => bail!("不支持的终端请求"),
@@ -234,11 +273,15 @@ async fn serve_access(store: CredentialStore, stream: tokio::io::DuplexStream) -
             },
             event = event_rx.recv() => {
                 if let Some((message, bytes)) = event {
-                    let id = match &message { Access::Data { terminal } | Access::Closed { terminal, .. } => terminal, _ => continue };
-                    if !terminals.contains_key(id) { continue; }
-                    if matches!(message, Access::Closed { .. }) { terminals.remove(id); }
+                    match &message {
+                        Access::Data { terminal } => if !terminals.contains_key(terminal) { continue; },
+                        Access::Closed { terminal, .. } => { if terminals.remove(terminal).is_none() { continue; } },
+                        Access::DesktopFrame { desktop, .. } => if !desktops.contains_key(desktop) { continue; },
+                        Access::DesktopClosed { desktop, .. } => { if desktops.remove(desktop).is_none() { continue; } },
+                        _ => continue,
+                    }
                     wire::write_access(&mut writer, &message, bytes).await?;
-                    if opened && terminals.is_empty() { return Ok(()); }
+                    if opened && terminals.is_empty() && desktops.is_empty() { return Ok(()); }
                 }
             },
             _ = idle.tick() => { ensure!(last_input.elapsed() < Duration::from_secs(45), "设备访问心跳超时"); if !opened { ensure!(began.elapsed() < Duration::from_secs(20), "认证后未打开终端"); } },

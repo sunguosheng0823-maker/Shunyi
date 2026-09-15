@@ -4,6 +4,8 @@
 
 当前版本为 **0.1.0 预发布版**，开源范围是 **无需账号的设备访问**：长期连接证书 + 单次临时密码 + 可自托管中继。账号注册、登录、同账号设备发现、云同步和远程桌面不在此版本中。
 
+正在开发的 **0.2 远控预览版**已接入 RustDesk 采集、VP8 编解码和键鼠引擎，连接认证与中继继续使用 UniRC。独立预览包的构建、使用、许可范围与验收状态见 [远控预览说明](docs/desktop-preview.md)。
+
 [English](README.en.md) · [快速开始](docs/getting-started.md) · [常见问题](docs/faq.md) · [架构](docs/architecture.md) · [版本记录](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md)
 
 ## 安装与下载
@@ -34,6 +36,15 @@
 本机共享默认关闭。图形客户端中的共享只在应用运行期间持续；持续无人值守访问请运行下方的独立 Agent 服务。切换项目、标签或折叠侧栏不会断开终端。
 
 首次连接一个未知 SSH 主机时，请先在系统终端使用 `ssh` 核对服务器指纹并写入 `known_hosts`。密钥发生变化时客户端拒绝连接，不自动替换记录。
+
+## Windows 版
+
+客户端代码跨平台（Tauri 2 + WebView2 + ConPTY，需 Windows 10 1809+）。构建方式见 [docs/windows.md](docs/windows.md)：
+
+- **GitHub Actions**：推送到 GitHub 后手动触发 `.github/workflows/windows-build.yml`，产物为 NSIS/MSI 安装包
+- **本地构建**：Windows 电脑上 `cd client\ui && npm ci && npx tauri build`
+
+Windows 使用系统原生标题栏（侧栏开关为 Ctrl+B）；安装包未签名，首次运行需通过 SmartScreen 确认。Windows 版 rc-agent 尚未交付，瞬移协议会话暂需 macOS/Linux 被控端。
 
 ## 从源码运行
 

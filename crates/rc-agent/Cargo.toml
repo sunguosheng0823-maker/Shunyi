@@ -13,6 +13,7 @@ name = "rc-agent"
 path = "src/main.rs"
 
 [dependencies]
+rc-desktop.workspace = true
 rc-core = { workspace = true }
 rc-access.workspace = true
 tokio = { workspace = true }

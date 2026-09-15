@@ -191,6 +191,8 @@ impl CredentialStore {
             file.write_all(&bytes)?;
             file.sync_all()?;
             fs::rename(&path, self.path())?;
+            // 目录 fsync 仅 unix 支持；Windows 上 CreateFile 打开目录会返回拒绝访问
+            #[cfg(unix)]
             File::open(&self.root)?.sync_all()?;
             Ok(())
         })();

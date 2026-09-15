@@ -1,0 +1,19 @@
+{
+  "productName": "瞬移远控预览",
+  "mainBinaryName": "shunyi-desktop-preview",
+  "version": "0.2.0",
+  "identifier": "cn.wkkj.shunyi.desktop-preview",
+  "app": {
+    "windows": [{"label": "main", "title": "瞬移远控预览", "width": 1280, "height": 820, "minWidth": 940, "minHeight": 600}]
+  },
+  "bundle": {
+    "license": "AGPL-3.0-only",
+    "licenseFile": "../../engines/rustdesk/LICENSE",
+    "shortDescription": "瞬移免账号远程终端与桌面预览",
+    "externalBin": ["binaries/shunyi-desktop-engine"],
+    "resources": {"desktop-resources/": "licenses/desktop/"},
+    "linux": {
+      "deb": {"depends": ["libxdo3", "libxcb-randr0", "libxcb-shape0", "libxcb-xfixes0", "libxtst6", "libxrandr2", "libxfixes3", "libxinerama1", "libxcursor1", "libasound2", "libpulse0", "libudev1"]}
+    }
+  }
+}

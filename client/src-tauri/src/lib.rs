@@ -3,11 +3,12 @@
 //! 前端（xterm.js）通过 invoke 调用命令、通过事件接收终端输出；
 //! 终端数据用 base64 编码传输，避免跨 IPC 的 UTF-8 边界截断。
 
+mod desktop;
+mod device;
 pub mod fs;
 mod pty;
 mod ssh;
 mod unirc;
-mod device;
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -23,6 +24,7 @@ pub struct AppState {
     /// UniRC 自有协议连接（单服务器，多会话复用）
     pub unirc: Arc<unirc::UnircConn>,
     pub local_access: device::LocalAccess,
+    pub desktops: std::sync::Arc<desktop::Desktops>,
     next_id: AtomicU32,
 }
 
@@ -31,8 +33,9 @@ impl AppState {
         Self {
             ptys: Mutex::new(HashMap::new()),
             ssh: Mutex::new(HashMap::new()),
-        unirc: Arc::new(unirc::UnircConn::default()),
+            unirc: Arc::new(unirc::UnircConn::default()),
             local_access: device::LocalAccess::default(),
+            desktops: std::sync::Arc::new(desktop::Desktops::default()),
             next_id: AtomicU32::new(1),
         }
     }
@@ -70,6 +73,11 @@ pub fn run() {
             unirc_connect,
             unirc::pick_access_certificate,
             unirc::inspect_access_certificate,
+            desktop::desktop_permissions,
+            desktop::desktop_connect,
+            desktop::desktop_input,
+            desktop::desktop_ack,
+            desktop::desktop_close,
             device::device_status,
             device::device_start,
             device::device_stop,
@@ -122,7 +130,10 @@ async fn import_hosts_text(app: tauri::AppHandle) -> Result<Option<String>, Stri
 
 /// 弹出保存对话框，把主机配置 JSON 写入用户选择的文件；取消返回 None，成功返回保存路径。
 #[tauri::command]
-async fn export_hosts_text(app: tauri::AppHandle, content: String) -> Result<Option<String>, String> {
+async fn export_hosts_text(
+    app: tauri::AppHandle,
+    content: String,
+) -> Result<Option<String>, String> {
     use tauri_plugin_dialog::DialogExt;
     let (tx, rx) = tokio::sync::oneshot::channel::<Option<String>>();
     app.dialog()
@@ -155,7 +166,11 @@ async fn pty_open(
 }
 
 #[tauri::command]
-async fn pty_write(state: tauri::State<'_, AppState>, session: String, data: String) -> Result<(), String> {
+async fn pty_write(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    data: String,
+) -> Result<(), String> {
     let handle = state.ptys.lock().get(&session).cloned();
     match handle {
         Some(h) => pty::write(&h, data.as_bytes()),
@@ -164,7 +179,12 @@ async fn pty_write(state: tauri::State<'_, AppState>, session: String, data: Str
 }
 
 #[tauri::command]
-async fn pty_resize(state: tauri::State<'_, AppState>, session: String, cols: u16, rows: u16) -> Result<(), String> {
+async fn pty_resize(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
     let handle = state.ptys.lock().get(&session).cloned();
     match handle {
         Some(h) => pty::resize(&h, cols, rows),
@@ -211,7 +231,11 @@ async fn ssh_connect(
 }
 
 #[tauri::command]
-async fn ssh_write(state: tauri::State<'_, AppState>, session: String, data: String) -> Result<(), String> {
+async fn ssh_write(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    data: String,
+) -> Result<(), String> {
     let handle = state.ssh.lock().get(&session).cloned();
     match handle {
         Some(h) => h.write(data.as_bytes().to_vec()).await,
@@ -220,7 +244,12 @@ async fn ssh_write(state: tauri::State<'_, AppState>, session: String, data: Str
 }
 
 #[tauri::command]
-async fn ssh_resize(state: tauri::State<'_, AppState>, session: String, cols: u16, rows: u16) -> Result<(), String> {
+async fn ssh_resize(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
     let handle = state.ssh.lock().get(&session).cloned();
     match handle {
         Some(h) => h.resize(cols, rows).await,
@@ -240,15 +269,28 @@ async fn ssh_close(state: tauri::State<'_, AppState>, session: String) -> Result
 // ---------- UniRC 自有协议 ----------
 
 #[tauri::command]
-async fn unirc_connect(app: tauri::AppHandle, state: tauri::State<'_, AppState>, request: unirc::ConnectRequest) -> Result<String, String> {
+async fn unirc_connect(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+    request: unirc::ConnectRequest,
+) -> Result<String, String> {
     unirc::connect_and_open_session(app, state.inner(), request).await
 }
 #[tauri::command]
-async fn unirc_write(state: tauri::State<'_, AppState>, session: String, data: String) -> Result<(), String> {
+async fn unirc_write(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    data: String,
+) -> Result<(), String> {
     state.unirc.write_session(&session, data.as_bytes()).await
 }
 #[tauri::command]
-async fn unirc_resize(state: tauri::State<'_, AppState>, session: String, cols: u16, rows: u16) -> Result<(), String> {
+async fn unirc_resize(
+    state: tauri::State<'_, AppState>,
+    session: String,
+    cols: u16,
+    rows: u16,
+) -> Result<(), String> {
     state.unirc.resize_session(&session, cols, rows).await
 }
 #[tauri::command]

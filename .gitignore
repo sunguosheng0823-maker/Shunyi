@@ -26,6 +26,9 @@ client/ui/dist/
 identity.json
 *.env
 release/
+.build/
+client/src-tauri/binaries/
+client/src-tauri/desktop-resources/
 
 # 工具状态
 .mimosa/

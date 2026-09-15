@@ -22,6 +22,7 @@ use tokio::{
 
 #[derive(Clone)]
 struct Agent {
+    version: u8,
     instance: String,
     ca: String,
     tx: mpsc::Sender<Vec<u8>>,
@@ -125,6 +126,7 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
         Ok::<_, anyhow::Error>(())
     };
     let reader = async {
+        let mut peer_version = wire::VERSION;
         let auth = async {
             if is_agent {
                 let nonce = credentials::random_secret();
@@ -145,7 +147,7 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
                         token,
                     } => {
                         ensure!(
-                            version == wire::VERSION
+                            wire::supported(version)
                                 && (state.token.is_empty() || token == *state.token),
                             "中继接入验证失败"
                         );
@@ -161,6 +163,7 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
                         registry.agents.insert(
                             device_id,
                             Agent {
+                                version,
                                 instance: id.clone(),
                                 ca: ca_pem,
                                 tx: tx.clone(),
@@ -173,9 +176,10 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
             } else {
                 match receive(&mut stream).await?.0 {
                     Relay::Hello { version, token }
-                        if version == wire::VERSION
+                        if wire::supported(version)
                             && (state.token.is_empty() || token == *state.token) =>
                     {
+                        peer_version = version;
                         enqueue(&tx, Relay::Welcome, vec![])?
                     }
                     _ => bail!("中继接入验证失败或客户端版本过旧"),
@@ -208,6 +212,19 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
                         )?;
                         continue;
                     };
+                    if peer_version >= wire::DESKTOP_VERSION
+                        && agent.version < wire::DESKTOP_VERSION
+                    {
+                        enqueue(
+                            &tx,
+                            Relay::Error {
+                                code: "desktop_unavailable".into(),
+                                message: "设备尚未启用远程桌面，请先在被控设备开启共享".into(),
+                            },
+                            vec![],
+                        )?;
+                        continue;
+                    }
                     if registry
                         .routes
                         .values()
@@ -269,10 +286,16 @@ async fn socket(state: AppState, ws: WebSocket, is_agent: bool) {
                         } else {
                             &route.agent_tx
                         };
-                        enqueue(destination, message.clone(), data)?;
+                        let destination = destination.clone();
+                        let packet = message.packet(data)?;
                         if matches!(message, Relay::Close { .. }) {
                             registry.routes.remove(tunnel);
                         }
+                        drop(registry);
+                        timeout(Duration::from_secs(10), destination.send(packet))
+                            .await
+                            .context("中继目标长时间拥塞")?
+                            .context("中继目标已断开")?;
                     }
                 }
                 _ => bail!("拒绝旧版明文终端或未授权的协议消息"),

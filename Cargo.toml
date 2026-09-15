@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "crates/rc-core",
     "crates/rc-access",
+    "crates/rc-desktop",
     "crates/rc-server",
     "crates/rc-agent",
     "client/src-tauri",
@@ -16,6 +17,7 @@ license = "Apache-2.0"
 [workspace.dependencies]
 rc-core = { path = "crates/rc-core" }
 rc-access = { path = "crates/rc-access" }
+rc-desktop = { path = "crates/rc-desktop" }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
