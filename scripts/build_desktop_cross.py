@@ -57,7 +57,7 @@ if not windows:
     config_name = "tauri.desktop-runtime.conf.json"
     (ROOT / "client/src-tauri" / config_name).write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
 run(["npm.cmd" if windows else "npm", "--prefix", ROOT / "client/ui", "run", "build"])
-run(["node", ROOT / "client/ui/node_modules/@tauri-apps/cli/tauri.js", "build", "--config", "src-tauri/" + config_name, "--features", "desktop-preview", "--bundles", "nsis,msi" if windows else "deb,appimage"], ROOT / "client")
+run(["node", ROOT / "client/ui/node_modules/@tauri-apps/cli/tauri.js", "build", "--verbose", "--config", "src-tauri/" + config_name, "--features", "desktop-preview", "--bundles", "nsis,msi" if windows else "deb,appimage"], ROOT / "client")
 out = ROOT / "target/desktop-distribution" / target
 out.mkdir(parents=True, exist_ok=True)
 portable = out / "portable"

@@ -62,6 +62,8 @@ jobs:
       - run: npm --prefix client/ui ci
       - name: Native desktop packages
         run: python scripts/build_desktop_cross.py
+      - name: Verify installer and portable payloads
+        run: python scripts/verify_desktop_artifacts.py target/desktop-distribution --receipt target/desktop-verification/artifact-integrity.json
       - name: Protocol and credential regression
         run: cargo test --locked -p rc-access -p rc-desktop -p rc-agent -p rc-server
       - name: Build disposable native acceptance tools
@@ -89,6 +91,7 @@ jobs:
           path: |
             .build/vcpkg/buildtrees/**/*.log
             target/desktop-verification/
+            target/release/wix/
           if-no-files-found: ignore
       - uses: actions/cache/save@v4
         if: always() && !cancelled() && steps.native-cache.outputs.cache-hit != 'true'

@@ -13,6 +13,10 @@
     "shortDescription": "瞬移免账号远程终端与桌面预览",
     "externalBin": ["binaries/shunyi-desktop-engine"],
     "resources": {"desktop-resources/": "licenses/desktop/"},
+    "windows": {
+      "wix": {"language": "zh-CN"},
+      "nsis": {"languages": ["SimpChinese", "English"], "displayLanguageSelector": true}
+    },
     "linux": {
       "deb": {"depends": ["libxdo3", "libxcb-randr0", "libxcb-shape0", "libxcb-xfixes0", "libxtst6", "libxrandr2", "libxfixes3", "libxinerama1", "libxcursor1", "libasound2", "libpulse0", "libudev1"]}
     }

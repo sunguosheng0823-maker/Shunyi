@@ -77,7 +77,9 @@ async fn main() -> Result<()> {
                     "invalid decoded frame"
                 );
                 distinct_colors = rgba
-                    .chunks_exact(4)
+                    .as_chunks::<4>()
+                    .0
+                    .iter()
                     .step_by(131)
                     .map(|pixel| [pixel[0], pixel[1], pixel[2]])
                     .collect::<std::collections::HashSet<_>>()
