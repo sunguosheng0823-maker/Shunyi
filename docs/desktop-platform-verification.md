@@ -7,10 +7,21 @@
 | 平台 | 实际测试环境 | 结果 |
 | --- | --- | --- |
 | Linux x64 | GitHub 托管 Ubuntu 22.04，X11 / Xvfb，独立测试窗口 | 原生客户端窗口、终端协议、桌面采集与解码、鼠标点击、按键、断开时释放按键通过 |
-| Windows x64 | GitHub 托管 Windows Server 2022，已登录桌面，独立测试窗口 | 安装包、原生窗口、终端协议已通过；桌面连续采集修复仍在验收 |
+| Windows x64 | GitHub 托管 Windows Server 2022，已登录桌面，独立测试窗口 | 原生客户端窗口、终端协议、桌面采集与解码、鼠标点击、按键、断开时释放按键通过 |
 | macOS Apple Silicon | 本机预览应用 | 原生界面、录屏和真实画面解码通过；实际控制仍待辅助功能授权后的独立窗口验收 |
 
-Linux 已验收产物对应提交 `968d5acbaa6093e125566e1721ff50981ae2fa8f`，原生构建记录见 [GitHub Actions](https://github.com/sunguosheng0823-maker/Shunyi/actions/runs/34991653019)。首帧为 1280 × 720，耗时 80 ms；客户端可见窗口启动耗时 283 ms。这些是该次托管测试机上的观测值，不代表跨网络时延或用户电脑性能。
+Windows 与 Linux 的已验收产物均对应提交 `076d1c1e4b803cdec6b8de41fe368bf9817151f3`，两个原生任务均通过，记录见 [原生构建与控制验收](https://github.com/sunguosheng0823-maker/Shunyi/actions/runs/34998594892)；[常规代码与终端检查](https://github.com/sunguosheng0823-maker/Shunyi/actions/runs/34998594763)也通过。
+
+| 该次原生测试观测值 | Windows | Linux |
+| --- | --- | --- |
+| 首帧分辨率 | 1024 × 768 | 1280 × 720 |
+| 首帧耗时 | 145 ms | 90 ms |
+| 已解码画面 | 首帧及输入后的更新画面，共 2 帧 | 首帧及输入后的更新画面，共 2 帧 |
+| 可见客户端窗口启动 | 265 ms | 531 ms |
+| 下载后 SHA-256 校验 | 23 个文件通过 | 19 个文件通过 |
+| 点击、按键、断开释放 | 全部通过 | 全部通过 |
+
+以上数据来自该次托管测试机与本机回环连接，不代表跨网络时延、持续帧率或用户电脑性能。Windows 的 DXGI 采集在这类桌面环境中可能于首帧之后返回 `invalid data`；适配层现按上游 RustDesk 的方式转用 GDI，恢复后的画面与键鼠控制已纳入验收。Windows 的 ConPTY 游标继承握手卡顿也已修复，并由真实 PowerShell 打开、输出、调整尺寸和关闭的测试覆盖。
 
 ## 验收方法
 

@@ -686,13 +686,13 @@
   },
   {
     "path": "docs/desktop-cross-platform.md",
-    "sha256": "64a36212aa53c6a4a53529343f2595c085d380a78a589c3d974143bab8d7511f",
-    "bytes": 3957
+    "sha256": "95adb2fe48cc469b8e0a7f70bd55edcaffd899fb4b59c64532b5dc8655a40b96",
+    "bytes": 4076
   },
   {
     "path": "docs/desktop-platform-verification.md",
-    "sha256": "0b68ad27b9852ca217b9e00def11b23afe29458ab286158c540a4924303c7c12",
-    "bytes": 2555
+    "sha256": "54e99fdbe1c5bb89bc0863d8e573ed6a86ffece5781c2fbffa5bbc302ecf3a80",
+    "bytes": 3486
   },
   {
     "path": "docs/desktop-preview.md",

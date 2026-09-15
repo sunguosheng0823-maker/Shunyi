@@ -30,6 +30,8 @@ chmod +x shunyi-desktop-preview_0.2.0_amd64.AppImage
 ./shunyi-desktop-preview_0.2.0_amd64.AppImage
 ```
 
+如果系统没有 FUSE，可用 `./shunyi-desktop-preview_0.2.0_amd64.AppImage --appimage-extract-and-run` 启动。
+
 被控 Linux 设备应在登录界面选择 Xorg/X11 会话。预览包不会更改显示服务器或系统权限。自建中继使用同包 `rc-server` 的 v3 版本，0.1 中继只支持终端；完整连接步骤见 [远控预览说明](desktop-preview.md)。
 
 ## 从源码构建
