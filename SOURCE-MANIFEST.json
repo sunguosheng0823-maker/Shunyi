@@ -26,8 +26,8 @@
   },
   {
     "path": ".github/workflows/desktop-preview-build.yml",
-    "sha256": "3180be9c157ca7fe41160b96929289753dc863748dc1ed4d5f30fd62f14f1629",
-    "bytes": 5022
+    "sha256": "3f5c16b2e673ddc7abd19c8749f71c63bf2a29700e991e9c757b98331d382474",
+    "bytes": 5072
   },
   {
     "path": ".github/workflows/windows-build.yml",
@@ -631,8 +631,8 @@
   },
   {
     "path": "crates/rc-server/tests/e2e.rs",
-    "sha256": "f18c77228604b62ba1ce83aadfd6f59c23b801415f8719226cd68d9f213a1c01",
-    "bytes": 18122
+    "sha256": "1ae4f1d0204aab0fa90471198c67fcbfe1949d06f6b4f0662369f3a63fc906a5",
+    "bytes": 18334
   },
   {
     "path": "crates/rc-server/tests/fixtures/desktop_engine.py",
@@ -996,8 +996,8 @@
   },
   {
     "path": "scripts/build_desktop_cross.py",
-    "sha256": "9894badb5498ee7d22769d6a448dc5bba52fbd232133ca0e559df666df169609",
-    "bytes": 5305
+    "sha256": "6402a1d25deccdaeec80be04444aa087233e02b4463d13d0cc380619c95ec4d8",
+    "bytes": 5493
   },
   {
     "path": "scripts/build_desktop_preview.py",
@@ -1041,8 +1041,8 @@
   },
   {
     "path": "scripts/verify_desktop_artifacts.py",
-    "sha256": "87dfd5c6c8fe5e807e24afbfb9d247e6a2f113479f6a3de04b649dcbb783b7a3",
-    "bytes": 5722
+    "sha256": "7f9de92158f9078437e40fe0a3e13f44751f055051a931fc1ec4502b56abcaae",
+    "bytes": 6032
   },
   {
     "path": "scripts/verify_desktop_ci.py",
@@ -1051,8 +1051,8 @@
   },
   {
     "path": "scripts/verify_desktop_launch.py",
-    "sha256": "13768c611a3232f1227c65b80ce9f6407ca2d4d128b6ca785abd36d0fab5e993",
-    "bytes": 3341
+    "sha256": "3d65e539b93589c979dfbe54123ed7c7be8f69fc1ab983b19d665b9545babed7",
+    "bytes": 4028
   },
   {
     "path": "scripts/verify_desktop_preview.py",

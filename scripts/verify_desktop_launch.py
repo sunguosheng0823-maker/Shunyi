@@ -21,7 +21,8 @@ if os.environ.get("CI") != "true" or system not in {"Windows", "Linux"}:
 
 def visible_windows(pid):
     if system == "Linux":
-        result = subprocess.run(["xdotool", "search", "--onlyvisible", "--pid", str(pid)], capture_output=True, text=True)
+        selector = ["--pid", str(pid)] if pid is not None else ["--name", "."]
+        result = subprocess.run(["xdotool", "search", "--onlyvisible", *selector], capture_output=True, text=True)
         titles = []
         for window in result.stdout.split():
             title = subprocess.run(["xdotool", "getwindowname", window], capture_output=True, text=True)
@@ -49,8 +50,12 @@ def visible_windows(pid):
 args.receipt.parent.mkdir(parents=True, exist_ok=True)
 report = {"platform": system.lower(), "isolated_ci_desktop": True, "passed": False}
 child = None
+window_manager = None
 try:
     with args.receipt.with_suffix(".log").open("wb") as log:
+        if system == "Linux":
+            # A window manager supplies the EWMH ownership/visibility metadata used below.
+            window_manager = subprocess.Popen(["openbox", "--sm-disable"], stdout=log, stderr=log)
         child = subprocess.Popen([str(args.client.resolve())], stdout=log, stderr=log)
         started = time.monotonic()
         while time.monotonic() - started < 25:
@@ -62,6 +67,8 @@ try:
                 break
             time.sleep(0.25)
         if not report["passed"]:
+            if system == "Linux":
+                report["observed_window_titles"] = visible_windows(None)
             raise RuntimeError("Packaged client did not open a visible Shunyi window")
 except Exception as error:
     report["error"] = str(error)
@@ -73,6 +80,13 @@ finally:
         except subprocess.TimeoutExpired:
             child.kill()
             child.wait(timeout=5)
+    if window_manager and window_manager.poll() is None:
+        window_manager.terminate()
+        try:
+            window_manager.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            window_manager.kill()
+            window_manager.wait(timeout=5)
     args.receipt.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(json.dumps(report, ensure_ascii=False))
 raise SystemExit(0 if report["passed"] else 1)

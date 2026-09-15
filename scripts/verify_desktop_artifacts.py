@@ -82,7 +82,10 @@ for path in manifests:
     for name in binaries:
         data = (root / "portable" / (name + suffix)).read_bytes()
         if windows:
-            report["native_binaries"][name] = {"architecture": "x64", "imports": pe_imports(data)}
+            imports = pe_imports(data)
+            redistributables = {"vcruntime140.dll", "vcruntime140_1.dll", "msvcp140.dll", "concrt140.dll"}
+            assert not redistributables.intersection(dll.lower() for dll in imports), f"{name} requires an unbundled Visual C++ runtime"
+            report["native_binaries"][name] = {"architecture": "x64", "imports": imports, "extra_vc_runtime_required": False}
         else:
             assert data[:4] == b"\x7fELF" and data[4:6] == b"\x02\x01" and struct.unpack_from("<H", data, 18)[0] == 62
             report["native_binaries"][name] = {"architecture": "x64"}

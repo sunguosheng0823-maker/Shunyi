@@ -21,6 +21,9 @@ windows = system == "Windows"
 suffix = ".exe" if windows else ""
 env = dict(os.environ)
 env.pop("_", None)
+if windows:
+    # Helpers and standalone services must work on PCs without developer runtimes.
+    env["RUSTFLAGS"] = (env.get("RUSTFLAGS", "") + " -C target-feature=+crt-static").strip()
 vcpkg = ROOT / ".build/vcpkg"
 env.update(VCPKG_ROOT=str(vcpkg), VCPKG_INSTALLED_ROOT=str(vcpkg / "installed"), CARGO_NET_GIT_FETCH_WITH_CLI="true", CARGO_TARGET_DIR=str(ROOT / "target"))
 

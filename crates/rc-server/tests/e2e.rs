@@ -283,13 +283,18 @@ async fn certificate_shell_resize_and_multiple_terminals() -> Result<()> {
     let (second, mut second_events) = client.open_terminal(80, 24).await?;
     client.resize(&first, 123, 37).await?;
     let size_command = if cfg!(windows) {
-        "$s=$Host.UI.RawUI.WindowSize; Write-Output ($s.Height.ToString()+' '+$s.Width.ToString()); Write-Output ('size:'+'done')\r\n"
+        "$s=$Host.UI.RawUI.WindowSize; if ($s.Height -eq 37 -and $s.Width -eq 123) { Write-Output ('resize:'+'ok') } else { Write-Output ('resize:'+'bad:'+$s.Height+':'+$s.Width) }; Write-Output ('size:'+'done')\r\n"
     } else {
         "stty size; printf 'size:%s\\n' done\n"
     };
     client.write(&first, size_command.as_bytes()).await?;
     let output = output_until(&mut first_events, "size:done").await?;
-    assert!(output.contains("37 123"), "PTY resize was not applied");
+    let resized = if cfg!(windows) {
+        output.contains("resize:ok")
+    } else {
+        output.contains("37 123")
+    };
+    assert!(resized, "PTY resize was not applied; output: {output:?}");
     client.close_terminal(&first).await?;
     client
         .write(&second, &shell_output("second", "alive"))
