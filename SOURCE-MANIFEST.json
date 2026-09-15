@@ -36,8 +36,8 @@
   },
   {
     "path": ".github/workflows/windows-packaged-acceptance.yml",
-    "sha256": "3ceffcc4074fa38a6cfe7cfa78ef1379f535d706ac94dbb2b6c70473b31d488b",
-    "bytes": 2299
+    "sha256": "fb6086d2aacb7dc257c85fbce9dc228cb8a366e46406f827593c89b37722a46d",
+    "bytes": 1747
   },
   {
     "path": ".gitignore",
@@ -616,8 +616,8 @@
   },
   {
     "path": "crates/rc-server/examples/desktop_acceptance.rs",
-    "sha256": "8ba814db7538fc52cf7c866b1ac4666fe83d6c6d11c31c517bc39f5328d660e6",
-    "bytes": 9287
+    "sha256": "9ed246efcf8f1873256ab633573a4498fef7890c099c6062c4f0add41afc4c93",
+    "bytes": 9993
   },
   {
     "path": "crates/rc-server/examples/native_fixture.rs",
@@ -690,9 +690,14 @@
     "bytes": 3957
   },
   {
+    "path": "docs/desktop-platform-verification.md",
+    "sha256": "0b68ad27b9852ca217b9e00def11b23afe29458ab286158c540a4924303c7c12",
+    "bytes": 2555
+  },
+  {
     "path": "docs/desktop-preview.md",
-    "sha256": "4306c03a887640f036630ec408fe95a3d500805eb571adb72f00bcc83b4d7360",
-    "bytes": 4857
+    "sha256": "dd28e5cf3a44956072e5c24260b91076b1749b88f46b2701496b0aea49af03c1",
+    "bytes": 4846
   },
   {
     "path": "docs/device-access-modes.md",
@@ -756,8 +761,8 @@
   },
   {
     "path": "engines/rustdesk/src/main.rs",
-    "sha256": "2fc2ed27f78beccd39a6aa303f7ec6da953b289c45ac3494d44da6474368a84d",
-    "bytes": 17411
+    "sha256": "7b362761724c813a39e43db0b270f2c3957e47d1bd25b329b7136b733dc8aa54",
+    "bytes": 17991
   },
   {
     "path": "licenses/UPSTREAM-NOTICES.json",
@@ -1001,8 +1006,8 @@
   },
   {
     "path": "scripts/build_desktop_cross.py",
-    "sha256": "6402a1d25deccdaeec80be04444aa087233e02b4463d13d0cc380619c95ec4d8",
-    "bytes": 5493
+    "sha256": "b3ca9927e144ffb9a4f9cc602c9b6096d92db5c920386e5b1d51c47a6a4f9e29",
+    "bytes": 5499
   },
   {
     "path": "scripts/build_desktop_preview.py",
@@ -1021,8 +1026,8 @@
   },
   {
     "path": "scripts/desktop_control_fixture.py",
-    "sha256": "e2bb18bd02ff3ef526cafd842194d6ba9b6a40c28c687a54a5f2c6859dd39675",
-    "bytes": 2624
+    "sha256": "646d517197c887da1a12a30e6c540ac507c739eecb4bd5b42dfce6b7c2f43188",
+    "bytes": 2835
   },
   {
     "path": "scripts/desktop_control_fixture.swift",
@@ -1036,8 +1041,8 @@
   },
   {
     "path": "scripts/package_source.py",
-    "sha256": "bd37e2f9aceb75d54686686a5146d2fd850dd697fefd2081477fb87f5281e563",
-    "bytes": 4476
+    "sha256": "9aa792dc50b059453b1f7989170651a4690b694095c004093c49b2e329ec9cf2",
+    "bytes": 4517
   },
   {
     "path": "scripts/prepare_desktop_deps.py",
@@ -1046,8 +1051,8 @@
   },
   {
     "path": "scripts/verify_desktop_artifacts.py",
-    "sha256": "7f9de92158f9078437e40fe0a3e13f44751f055051a931fc1ec4502b56abcaae",
-    "bytes": 6032
+    "sha256": "45d4821ec4559a138922b457f28e459b3b80aa1a10f36bbe034fd4f3fa753263",
+    "bytes": 6051
   },
   {
     "path": "scripts/verify_desktop_ci.py",

@@ -25,7 +25,7 @@ async fn main() {
                     &mut stdout,
                     &(
                         Header::Error {
-                        message: format!("{error:#}"),
+                            message: format!("{error:#}"),
                         },
                         vec![],
                     ),
@@ -226,7 +226,17 @@ async fn capture() -> Result<()> {
                     Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
                         ensure!(sequence > 0 || start.elapsed() < Duration::from_secs(10), "屏幕采集未返回画面，请重新授予录屏权限");
                     }
-                    Err(error) => return Err(error).context("屏幕采集已停止"),
+                    Err(error) => {
+                        // Follow RustDesk's Windows capture recovery: DXGI can stop
+                        // after a desktop update even when its first frame succeeded.
+                        // Fall back once; a GDI failure still terminates the session.
+                        #[cfg(target_os = "windows")]
+                        if !capturer.is_gdi() && capturer.set_gdi() {
+                            eprintln!("DXGI capture failed; using GDI: {error}");
+                            continue;
+                        }
+                        return Err(error).context("屏幕采集已停止");
+                    }
                 }
             }
         }

@@ -23,6 +23,7 @@ canvas.create_rectangle(225, 25, 400, 170, fill="#e5a633", outline="")
 canvas.create_rectangle(425, 25, 600, 170, fill="#8875de", outline="")
 canvas.create_text(30, 220, anchor="w", text="Shunyi native capture and input test", fill="white", font=("Arial", 22))
 canvas.create_text(30, 260, anchor="w", text="This window belongs to the disposable CI test.", fill="#d0dbe9", font=("Arial", 14))
+input_status = canvas.create_text(30, 345, anchor="w", text="Waiting for remote input", fill="#d0dbe9", font=("Arial", 18))
 events = (root_path / "control-events.jsonl").open("w", buffering=1)
 
 def record(kind, event):
@@ -31,6 +32,7 @@ def record(kind, event):
         key = getattr(event, "char", "").lower()
     code = {"a": 0, "b": 11}.get(key, -1) if kind.startswith("key_") else 0
     events.write(json.dumps({"event": kind, "code": code, "keysym": getattr(event, "keysym", ""), "time": time.time()}) + "\n")
+    canvas.itemconfigure(input_status, text=f"Received: {kind} {key}", fill="#08b8a0")
 
 window.bind("<ButtonPress-1>", lambda e: record("mouse_down", e))
 window.bind("<ButtonRelease-1>", lambda e: record("mouse_up", e))

@@ -1,17 +1,13 @@
 name: Windows packaged desktop acceptance
 on:
-  push:
-    branches: [codex/desktop-acceptance]
   workflow_dispatch:
     inputs:
       build_run:
         description: Native build run containing the Windows package
         required: true
-        default: '34992710015'
       artifact_name:
         description: Windows native build artifact name
         required: true
-        default: shunyi-desktop-preview-Windows-95c1feb2de5e6dea6a7b01e7850f3fd97ab22f1f
 permissions:
   contents: read
   actions: read
@@ -21,7 +17,6 @@ jobs:
     timeout-minutes: 25
     env:
       PYTHONUTF8: '1'
-      VCPKG_MAX_CONCURRENCY: '4'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,38 +27,12 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
-          workspaces: |
-            . -> target
-            engines/rustdesk -> ../../target/desktop-engine
-      - name: Native test dependencies
-        shell: pwsh
-        run: |
-          choco install nasm -y --no-progress
-          "C:\Program Files\NASM" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          "LIBCLANG_PATH=C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-      - uses: actions/cache/restore@v4
-        with:
-          path: |
-            .build/vcpkg/installed
-            .build/vcpkg/downloads
-          key: desktop-vcpkg-${{ runner.os }}-9e593bb18-851d2df88-v1
-      - name: Prepare pinned engine dependencies
-        run: python scripts/prepare_desktop_deps.py
-      - name: Build current capture engine
-        shell: pwsh
-        run: |
-          $env:VCPKG_ROOT = "$pwd/.build/vcpkg"
-          $env:VCPKG_INSTALLED_ROOT = "$pwd/.build/vcpkg/installed"
-          $env:CARGO_TARGET_DIR = "$pwd/target/desktop-engine"
-          $env:RUSTFLAGS = '-C target-feature=+crt-static'
-          cargo build --manifest-path engines/rustdesk/Cargo.toml --locked --release
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          target/desktop-engine/release/shunyi-desktop-engine.exe self-test
+          workspaces: . -> target
       - uses: actions/download-artifact@v4
         with:
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.build_run || '34992710015' }}
-          name: ${{ inputs.artifact_name || 'shunyi-desktop-preview-Windows-95c1feb2de5e6dea6a7b01e7850f3fd97ab22f1f' }}
+          run-id: ${{ inputs.build_run }}
+          name: ${{ inputs.artifact_name }}
           path: prebuilt
       - name: Check the downloaded native binaries
         run: python scripts/verify_desktop_artifacts.py prebuilt/desktop-distribution --receipt target/desktop-verification/artifact-integrity.json
@@ -71,7 +40,7 @@ jobs:
         run: cargo build --locked -p rc-server --example native_fixture --example desktop_acceptance
       - name: Real desktop capture and input
         timeout-minutes: 3
-        run: python scripts/verify_desktop_ci.py target/desktop-engine/release/shunyi-desktop-engine.exe
+        run: python scripts/verify_desktop_ci.py prebuilt/desktop-distribution/x86_64-pc-windows-msvc/portable/shunyi-desktop-engine.exe
       - uses: actions/upload-artifact@v4
         if: always()
         with:

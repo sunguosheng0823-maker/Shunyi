@@ -40,7 +40,7 @@ RustDesk 与 libyuv 固定到具体提交，Rust 依赖由独立 `Cargo.lock` �
 
 ## 验收与复现
 
-本次执行记录见 [验收报告](verification/desktop-preview-2026-09-15/README.md)。`cargo test --workspace --all-targets` 覆盖原有终端与新增桌面协议；`shunyi-desktop-engine self-test` 验证真实 VP8 编解码，不采集屏幕或发送输入。
+本次执行记录见 [平台验收记录](desktop-platform-verification.md)。`cargo test --workspace --all-targets` 覆盖原有终端与新增桌面协议；`shunyi-desktop-engine self-test` 验证真实 VP8 编解码，不采集屏幕或发送输入。
 
 原生验收使用 `rc-server/examples/native_fixture.rs` 创建仅监听回环地址的临时环境，再运行 `scripts/verify_desktop_preview.py <fixture-directory> --engine <absolute-engine-path>` 检查实际认证、采集与解码。先构建 `cargo build -p rc-server --example desktop_acceptance --example native_fixture`。测试目录包含私有凭据，应留在本机，不能放入公开验收附件。
 

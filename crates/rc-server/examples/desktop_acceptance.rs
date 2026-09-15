@@ -178,17 +178,25 @@ async fn main() -> Result<()> {
     if control {
         // A real viewer keeps consuming frames while keys are held. Leaving this
         // channel unread fills the bounded video queue and invalidates the input test.
-        let held = tokio::time::sleep(Duration::from_millis(800));
+        let held = tokio::time::sleep(Duration::from_millis(1200));
         tokio::pin!(held);
         loop {
             tokio::select! {
                 _ = &mut held => break,
                 event = events.recv() => match event.context("键鼠验收期间桌面事件流已关闭")? {
                     DesktopEvent::Closed(reason) => anyhow::bail!("键鼠验收期间桌面中断：{reason}"),
-                    DesktopEvent::Frame { .. } | DesktopEvent::Opened { .. } => {}
+                    DesktopEvent::Frame { sequence, width, height, data } => {
+                        decoder.commands.send((Header::Decode { sequence, width, height }, data)).await?;
+                        let (image, rgba) = tokio::time::timeout(Duration::from_secs(5), decoded.recv())
+                            .await.context("输入后画面解码超时")?.context("输入后解码器已停止")?;
+                        anyhow::ensure!(matches!(image, Header::Image { .. }) && rgba.len() == width as usize * height as usize * 4, "输入后返回了无效画面");
+                        frames += 1;
+                    }
+                    DesktopEvent::Opened { .. } => {}
                 }
             }
         }
+        anyhow::ensure!(frames > 1, "键鼠输入已发送，但未收到更新后的桌面画面");
     }
     let disconnect_at = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)?

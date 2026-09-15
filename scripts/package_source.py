@@ -18,7 +18,7 @@ roots = ["Cargo.toml", "Cargo.lock", "README.md", "README.en.md", "CONTRIBUTING.
          "crates", "client", "protocol", "deploy", "scripts", "licenses", "vendor/portable-pty", ".github", "docs/device-access-modes.md",
          "docs/getting-started.md", "docs/faq.md", "docs/architecture.md"]
 if args.desktop:
-    roots += ["engines", "docs/desktop-preview.md", "docs/desktop-cross-platform.md", "docs/windows.md", "protocol/UniRC-T-v3-desktop-preview.md"]
+    roots += ["engines", "docs/desktop-preview.md", "docs/desktop-cross-platform.md", "docs/desktop-platform-verification.md", "docs/windows.md", "protocol/UniRC-T-v3-desktop-preview.md"]
 excluded = {"target", "node_modules", "dist", "gen", ".git", ".build", "binaries", "desktop-resources", ".mimosa", ".mimocode", ".zcode", ".DS_Store", "__pycache__"}
 private_extensions = {".shunyi-cert", ".pem", ".key", ".p12", ".env", ".test-secret", ".log"}
 paths = []
