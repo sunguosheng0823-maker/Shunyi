@@ -29,7 +29,8 @@ async fn main() -> Result<()> {
             fixture["certificatePath"].as_str().context("certificate")?,
         ))?),
     })
-    .await?;
+    .await
+    .context("桌面验收认证连接失败")?;
     let (desktop, mut events) = client.open_desktop(0, control).await?;
     let mut frames = 0;
     let (decoder, mut decoded) = Engine::spawn(&engine, "decode")?;
@@ -91,6 +92,12 @@ async fn main() -> Result<()> {
                 frames += 1;
                 if frames == 1 {
                     first_ms = started.elapsed().as_millis();
+                    std::fs::write(
+                        root.join("desktop-first-frame.json"),
+                        serde_json::to_vec_pretty(
+                            &serde_json::json!({"real_unirc_tls":true,"real_rustdesk_capture":true,"real_vp8_decode":true,"width":width,"height":height,"first_frame_ms":first_ms,"distinct_sampled_colors":distinct_colors}),
+                        )?,
+                    )?;
                     // Save no user screen content: retain frame measurements only.
                     if control {
                         let target: serde_json::Value = serde_json::from_slice(&std::fs::read(
@@ -169,10 +176,27 @@ async fn main() -> Result<()> {
         }
     }
     if control {
-        tokio::time::sleep(Duration::from_millis(800)).await;
+        // A real viewer keeps consuming frames while keys are held. Leaving this
+        // channel unread fills the bounded video queue and invalidates the input test.
+        let held = tokio::time::sleep(Duration::from_millis(800));
+        tokio::pin!(held);
+        loop {
+            tokio::select! {
+                _ = &mut held => break,
+                event = events.recv() => match event.context("键鼠验收期间桌面事件流已关闭")? {
+                    DesktopEvent::Closed(reason) => anyhow::bail!("键鼠验收期间桌面中断：{reason}"),
+                    DesktopEvent::Frame { .. } | DesktopEvent::Opened { .. } => {}
+                }
+            }
+        }
     }
-    let disconnect_at = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)?.as_secs_f64();
-    client.close_desktop(&desktop).await?;
+    let disconnect_at = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)?
+        .as_secs_f64();
+    client
+        .close_desktop(&desktop)
+        .await
+        .context("桌面验收主动断开失败")?;
     let receipt = serde_json::json!({"real_unirc_tls":true,"real_rustdesk_capture":true,"real_vp8_decode":true,"frames":frames,"width":resolution.0,"height":resolution.1,"first_frame_ms":first_ms,"distinct_sampled_colors":distinct_colors,"control_requested":control,"disconnect_at":disconnect_at,"input_acceptance_requires_fixture_log":control});
     std::fs::write(
         root.join(if control {

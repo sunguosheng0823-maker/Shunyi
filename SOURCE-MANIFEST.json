@@ -35,6 +35,11 @@
     "bytes": 1087
   },
   {
+    "path": ".github/workflows/windows-packaged-acceptance.yml",
+    "sha256": "3ceffcc4074fa38a6cfe7cfa78ef1379f535d706ac94dbb2b6c70473b31d488b",
+    "bytes": 2299
+  },
+  {
     "path": ".gitignore",
     "sha256": "bc6b06486ad29eac81d60f7853a81b2307395723d9fadcc4f54fb64078849239",
     "bytes": 394
@@ -611,13 +616,13 @@
   },
   {
     "path": "crates/rc-server/examples/desktop_acceptance.rs",
-    "sha256": "1c5ce2332cc0cf67e41240496251cdd42424f685a88aa1723f5a86c95e98506b",
-    "bytes": 8095
+    "sha256": "8ba814db7538fc52cf7c866b1ac4666fe83d6c6d11c31c517bc39f5328d660e6",
+    "bytes": 9287
   },
   {
     "path": "crates/rc-server/examples/native_fixture.rs",
-    "sha256": "f886b8bfdfd771d9d9c6ef97d25f50c7aed0141b0125d72de964bdf2f1a5bdfa",
-    "bytes": 1850
+    "sha256": "99b22ca16cc738e80c714efb19bedfb18b155e2a35869f36e4ebc9c09219b216",
+    "bytes": 2085
   },
   {
     "path": "crates/rc-server/src/lib.rs",
@@ -1046,8 +1051,8 @@
   },
   {
     "path": "scripts/verify_desktop_ci.py",
-    "sha256": "04dba2a8614fb2dc59c92eba342f8107ed2944b13dfe539d364f5c6f182a20f9",
-    "bytes": 3783
+    "sha256": "6846797b5860758963d014524445c5ba68eb7f5d60c2d51d99c497a985008670",
+    "bytes": 4219
   },
   {
     "path": "scripts/verify_desktop_launch.py",

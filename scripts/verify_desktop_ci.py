@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import shutil
 import sys
 import tempfile
 import time
@@ -43,6 +44,7 @@ try:
     if target["pid"] != window.pid or target["front_pid"] != window.pid:
         raise RuntimeError("Test window did not acquire focus; no input was sent")
     result = subprocess.run([str(ROOT / "target/debug/examples" / ("desktop_acceptance" + suffix)), directory, "--input"], env=env, capture_output=True, text=True, timeout=40)
+    (output / "desktop-acceptance.log").write_text(result.stdout + result.stderr, encoding="utf-8")
     if result.returncode:
         raise RuntimeError(result.stderr.strip() or "Desktop acceptance failed")
     receipt["desktop"] = json.loads((folder / "desktop-control.json").read_text())
@@ -66,6 +68,10 @@ finally:
             child.kill()
             child.wait()
     if log is not None: log.close()
+    # Preserve only diagnostics and synthetic window events, never fixture credentials.
+    for name in ("fixture.log", "desktop-first-frame.json", "desktop-control.json", "control-events.jsonl", "control-target.json"):
+        path = Path(temp_dir.name) / name
+        if path.exists(): shutil.copy2(path, output / name)
     temp_dir.cleanup()
     (output / "native-desktop.json").write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(receipt, ensure_ascii=False))

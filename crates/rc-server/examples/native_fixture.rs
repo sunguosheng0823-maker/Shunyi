@@ -5,6 +5,10 @@ use std::{fs, io::Write, path::PathBuf};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter("rc_agent=debug,rc_server=debug")
+        .with_ansi(false)
+        .try_init();
     let root = PathBuf::from(
         std::env::args()
             .nth(1)
@@ -37,7 +41,12 @@ async fn main() -> Result<()> {
     println!("Disposable loopback fixture: {server}");
     let agent = rc_agent::run(rc_agent::AgentConfig {
         desktop: std::env::var_os("SHUNYI_DESKTOP_ENGINE")
-            .map(|path| rc_agent::desktop::DesktopConfig::new(PathBuf::from(path), rc_desktop::Permission::Control))
+            .map(|path| {
+                rc_agent::desktop::DesktopConfig::new(
+                    PathBuf::from(path),
+                    rc_desktop::Permission::Control,
+                )
+            })
             .transpose()?,
         server_url: server,
         token: String::new(),
