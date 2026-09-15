@@ -3,6 +3,7 @@
   "mainBinaryName": "shunyi-desktop-preview",
   "version": "0.2.0",
   "identifier": "cn.wkkj.shunyi.desktop-preview",
+  "build": {"beforeBuildCommand": null},
   "app": {
     "windows": [{"label": "main", "title": "瞬移远控预览", "width": 1280, "height": 820, "minWidth": 940, "minHeight": 600}]
   },

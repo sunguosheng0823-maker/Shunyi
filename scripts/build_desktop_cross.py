@@ -22,7 +22,7 @@ suffix = ".exe" if windows else ""
 env = dict(os.environ)
 env.pop("_", None)
 vcpkg = ROOT / ".build/vcpkg"
-env.update(VCPKG_ROOT=str(vcpkg), VCPKG_INSTALLED_ROOT=str(vcpkg / "installed"), CARGO_NET_GIT_FETCH_WITH_CLI="true")
+env.update(VCPKG_ROOT=str(vcpkg), VCPKG_INSTALLED_ROOT=str(vcpkg / "installed"), CARGO_NET_GIT_FETCH_WITH_CLI="true", CARGO_TARGET_DIR=str(ROOT / "target"))
 
 def run(command, cwd=ROOT, overrides=None):
     subprocess.run([str(x) for x in command], cwd=cwd, env=env | (overrides or {}), check=True)
@@ -46,7 +46,18 @@ for copyright_file in (vcpkg / "installed").glob("*/share/*/copyright"):
     destination.mkdir(exist_ok=True)
     shutil.copy2(copyright_file, destination / "LICENSE.txt")
 run(["cargo", "build", "--locked", "--release", "-p", "rc-agent", "-p", "rc-server"])
-run(["npx.cmd" if windows else "npx", "tauri", "build", "--config", "../src-tauri/tauri.desktop-preview.conf.json", "--features", "desktop-preview", "--bundles", "nsis,msi" if windows else "deb,appimage"], ROOT / "client/ui")
+config_name = "tauri.desktop-preview.conf.json"
+if not windows:
+    # RustDesk loads libxdo dynamically, so ELF dependency scanning cannot discover it.
+    choices = list(Path("/usr/lib").glob("*/libxdo.so.3")) + list(Path("/usr/lib").glob("libxdo.so.3"))
+    if not choices:
+        raise SystemExit("Missing libxdo.so.3; install libxdo-dev before creating the AppImage")
+    config = json.loads((ROOT / "client/src-tauri" / config_name).read_text(encoding="utf-8"))
+    config["bundle"]["linux"]["appimage"] = {"files": {"/usr/lib/libxdo.so.3": str(choices[0].resolve())}}
+    config_name = "tauri.desktop-runtime.conf.json"
+    (ROOT / "client/src-tauri" / config_name).write_text(json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+run(["npm.cmd" if windows else "npm", "--prefix", ROOT / "client/ui", "run", "build"])
+run(["node", ROOT / "client/ui/node_modules/@tauri-apps/cli/tauri.js", "build", "--config", "src-tauri/" + config_name, "--features", "desktop-preview", "--bundles", "nsis,msi" if windows else "deb,appimage"], ROOT / "client")
 out = ROOT / "target/desktop-distribution" / target
 out.mkdir(parents=True, exist_ok=True)
 portable = out / "portable"
@@ -67,5 +78,5 @@ with zipfile.ZipFile(out / ("Shunyi-Desktop-Preview-0.2.0-" + target + ".zip"), 
     for file in sorted(portable.rglob("*")):
         if file.is_file(): archive.write(file, file.relative_to(portable.parent))
 manifest = {str(p.relative_to(out)): hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob("*") if p.is_file() and p.name != "BUILD.json"}
-(out / "BUILD.json").write_text(json.dumps({"target": target, "version": "0.2.0", "native_build": True, "files": manifest}, ensure_ascii=False, indent=2) + "\n")
+(out / "BUILD.json").write_text(json.dumps({"target": target, "version": "0.2.0", "native_build": True, "files": manifest}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(json.dumps({"output": str(out), "target": target, "files": len(manifest)}, ensure_ascii=False))

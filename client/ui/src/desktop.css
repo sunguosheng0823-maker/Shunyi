@@ -17,3 +17,4 @@
 .desktop-policy { display: block; margin: 14px 0 8px; }
 .desktop-policy select { width: 100%; margin-top: 7px; }
 .desktop-permissions { display: flex; gap: 12px; margin-top: 8px; }
+.desktop-permissions[hidden] { display: none; }

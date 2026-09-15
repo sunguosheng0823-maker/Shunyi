@@ -29,6 +29,7 @@ release/
 .build/
 client/src-tauri/binaries/
 client/src-tauri/desktop-resources/
+client/src-tauri/tauri.desktop-runtime.conf.json
 
 # 工具状态
 .mimosa/

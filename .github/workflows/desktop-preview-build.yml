@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 100
     env:
       CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+      PYTHONUTF8: '1'
       VCPKG_MAX_CONCURRENCY: '4'
     steps:
       - uses: actions/checkout@v4
@@ -35,10 +36,12 @@ jobs:
         if: runner.os == 'Windows'
       - uses: Swatinem/rust-cache@v2
         with:
+          cache-on-failure: true
           workspaces: |
             . -> target
             engines/rustdesk -> ../../target/desktop-engine
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
+        id: native-cache
         with:
           path: |
             .build/vcpkg/installed
@@ -61,12 +64,23 @@ jobs:
         run: python scripts/build_desktop_cross.py
       - name: Protocol and credential regression
         run: cargo test --locked -p rc-access -p rc-desktop -p rc-agent -p rc-server
+      - name: Build disposable native acceptance tools
+        run: cargo build --locked -p rc-server --example native_fixture --example desktop_acceptance
+      - name: Linux real desktop acceptance
+        if: runner.os == 'Linux'
+        run: XDG_SESSION_TYPE=x11 xvfb-run -a -s '-screen 0 1280x720x24' python3 scripts/verify_desktop_ci.py target/desktop-engine/release/shunyi-desktop-engine
+      - name: Windows real desktop acceptance
+        if: runner.os == 'Windows'
+        run: python scripts/verify_desktop_ci.py target/desktop-engine/release/shunyi-desktop-engine.exe
       - name: Source archive
         run: python scripts/package_source.py --desktop --out target/desktop-distribution/shunyi-desktop-source.zip
       - uses: actions/upload-artifact@v4
+        if: always() && !cancelled()
         with:
           name: shunyi-desktop-preview-${{ runner.os }}-${{ github.sha }}
-          path: target/desktop-distribution/
+          path: |
+            target/desktop-distribution/
+            target/desktop-verification/
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -76,3 +90,10 @@ jobs:
             .build/vcpkg/buildtrees/**/*.log
             target/desktop-verification/
           if-no-files-found: ignore
+      - uses: actions/cache/save@v4
+        if: always() && !cancelled() && steps.native-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            .build/vcpkg/installed
+            .build/vcpkg/downloads
+          key: desktop-vcpkg-${{ runner.os }}-9e593bb18-851d2df88-v1

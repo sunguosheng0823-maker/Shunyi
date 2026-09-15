@@ -23,3 +23,8 @@ libc = "0.2"
 
 [build-dependencies]
 cc = "1"
+
+# enigo uses the public ABI types from RustDesk's runtime-loaded X11 adapter.
+# Keep the same patch as the pinned upstream workspace instead of crates.io's different API.
+[patch.crates-io]
+libxdo-sys = { path = "vendor/rustdesk/libs/libxdo-sys-stub" }

@@ -235,7 +235,10 @@ impl Engine {
     pub fn spawn(path: &Path, mode: &str) -> Result<(Self, mpsc::Receiver<Packet>)> {
         ensure!(path.is_absolute() && path.is_file(), "远控引擎尚未安装");
         ensure!(matches!(mode, "capture" | "decode"), "无效引擎模式");
-        let mut child = tokio::process::Command::new(path)
+        let mut command = tokio::process::Command::new(path);
+        #[cfg(windows)]
+        command.creation_flags(0x08000000); // CREATE_NO_WINDOW: helpers must not steal foreground focus.
+        let mut child = command
             .arg(mode)
             .stdin(std::process::Stdio::piped())
             .stdout(std::process::Stdio::piped())

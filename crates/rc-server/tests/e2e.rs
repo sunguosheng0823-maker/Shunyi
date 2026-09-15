@@ -26,7 +26,9 @@ impl Drop for Fixture {
     }
 }
 impl Fixture {
-    async fn new() -> Result<Self> { Self::with_desktop(None).await }
+    async fn new() -> Result<Self> {
+        Self::with_desktop(None).await
+    }
     async fn with_desktop(desktop: Option<rc_agent::desktop::DesktopConfig>) -> Result<Self> {
         let dir = tempfile::tempdir()?;
         let store = CredentialStore::open(dir.path().join("device"))?;
@@ -87,7 +89,10 @@ impl Fixture {
 }
 
 #[cfg(unix)]
-fn desktop_config(dir: &std::path::Path, permission: rc_desktop::Permission) -> Result<rc_agent::desktop::DesktopConfig> {
+fn desktop_config(
+    dir: &std::path::Path,
+    permission: rc_desktop::Permission,
+) -> Result<rc_agent::desktop::DesktopConfig> {
     use std::os::unix::fs::PermissionsExt;
     let path = dir.join("synthetic-desktop-engine");
     std::fs::write(&path, include_bytes!("fixtures/desktop_engine.py"))?;
@@ -95,15 +100,25 @@ fn desktop_config(dir: &std::path::Path, permission: rc_desktop::Permission) -> 
     rc_agent::desktop::DesktopConfig::new(path, permission)
 }
 
-async fn desktop_event(rx: &mut mpsc::Receiver<rc_access::client::DesktopEvent>) -> Result<rc_access::client::DesktopEvent> {
-    tokio::time::timeout(Duration::from_secs(10), rx.recv()).await?.context("desktop channel closed")
+async fn desktop_event(
+    rx: &mut mpsc::Receiver<rc_access::client::DesktopEvent>,
+) -> Result<rc_access::client::DesktopEvent> {
+    tokio::time::timeout(Duration::from_secs(10), rx.recv())
+        .await?
+        .context("desktop channel closed")
 }
 
 #[tokio::test]
 async fn desktop_version_rejection_does_not_consume_temporary_password() -> Result<()> {
     let f = Fixture::new().await?;
     let password = f.store.create_temporary(300)?;
-    let result = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Temporary(password.clone()) }).await;
+    let result = AccessClient::connect_desktop(ConnectOptions {
+        server: f.server.clone(),
+        token: String::new(),
+        device_id: f.device.clone(),
+        credential: Credential::Temporary(password.clone()),
+    })
+    .await;
     assert!(result.is_err());
     assert_eq!(f.store.status()?.temporary_state, "unused");
     let terminal = f.connect(Credential::Temporary(password)).await?;
@@ -116,27 +131,62 @@ async fn desktop_version_rejection_does_not_consume_temporary_password() -> Resu
 async fn desktop_fragments_coexist_with_terminal_and_reject_readonly_input() -> Result<()> {
     use rc_access::client::DesktopEvent;
     let dir = tempfile::tempdir()?;
-    let f = Fixture::with_desktop(Some(desktop_config(dir.path(), rc_desktop::Permission::View)?)).await?;
-    let client = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Certificate(f.certificate.clone()) }).await?;
+    let f = Fixture::with_desktop(Some(desktop_config(
+        dir.path(),
+        rc_desktop::Permission::View,
+    )?))
+    .await?;
+    let client = AccessClient::connect_desktop(ConnectOptions {
+        server: f.server.clone(),
+        token: String::new(),
+        device_id: f.device.clone(),
+        credential: Credential::Certificate(f.certificate.clone()),
+    })
+    .await?;
     let (terminal, mut output) = client.open_terminal(80, 24).await?;
     let (_, mut denied) = client.open_desktop(0, true).await?;
-    assert!(matches!(desktop_event(&mut denied).await?, DesktopEvent::Closed(_)));
+    assert!(matches!(
+        desktop_event(&mut denied).await?,
+        DesktopEvent::Closed(_)
+    ));
     let (desktop, mut events) = client.open_desktop(0, false).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: false, .. }));
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Opened { control: false, .. }
+    ));
     match desktop_event(&mut events).await? {
         DesktopEvent::Frame { data, .. } => assert_eq!(data, b"frame-test-".repeat(60000)),
         _ => anyhow::bail!("expected complete large frame"),
     }
     // Malicious view-only peer attempts input; enforcement happens on the agent.
-    client.desktop_input(&desktop, rc_desktop::Input::Key { key: "KeyA".into(), down: true }).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Closed(_)));
+    client
+        .desktop_input(
+            &desktop,
+            rc_desktop::Input::Key {
+                key: "KeyA".into(),
+                down: true,
+            },
+        )
+        .await?;
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Closed(_)
+    ));
     assert!(!client.is_closed());
-    client.write(&terminal, b"printf 'DESKTOP_VIEW_TEST_OK\\n'\r").await?;
+    client
+        .write(&terminal, b"printf 'DESKTOP_VIEW_TEST_OK\\n'\r")
+        .await?;
     output_until(&mut output, "DESKTOP_VIEW_TEST_OK").await?;
     let (desktop, mut events) = client.open_desktop(0, false).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { .. }));
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Opened { .. }
+    ));
     client.close_terminal(&terminal).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Frame { .. }));
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Frame { .. }
+    ));
     assert!(!client.is_closed());
     client.close_desktop(&desktop).await?;
     Ok(())
@@ -147,19 +197,41 @@ async fn desktop_fragments_coexist_with_terminal_and_reject_readonly_input() -> 
 async fn temporary_desktop_auth_is_single_use_and_releases_capture_slot() -> Result<()> {
     use rc_access::client::DesktopEvent;
     let dir = tempfile::tempdir()?;
-    let f = Fixture::with_desktop(Some(desktop_config(dir.path(), rc_desktop::Permission::Control)?)).await?;
+    let f = Fixture::with_desktop(Some(desktop_config(
+        dir.path(),
+        rc_desktop::Permission::Control,
+    )?))
+    .await?;
     let password = f.store.create_temporary(300)?;
-    let options = || ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Temporary(password.clone()) };
+    let options = || ConnectOptions {
+        server: f.server.clone(),
+        token: String::new(),
+        device_id: f.device.clone(),
+        credential: Credential::Temporary(password.clone()),
+    };
     let client = AccessClient::connect_desktop(options()).await?;
     let (_, mut events) = client.open_desktop(0, true).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: true, .. }));
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Opened { control: true, .. }
+    ));
     assert!(AccessClient::connect_desktop(options()).await.is_err());
-    drop(client); drop(events);
+    drop(client);
+    drop(events);
     // Wait for transport cleanup, then use a new certificate session.
     tokio::time::sleep(Duration::from_millis(250)).await;
-    let client = AccessClient::connect_desktop(ConnectOptions { server: f.server.clone(), token: String::new(), device_id: f.device.clone(), credential: Credential::Certificate(f.certificate.clone()) }).await?;
+    let client = AccessClient::connect_desktop(ConnectOptions {
+        server: f.server.clone(),
+        token: String::new(),
+        device_id: f.device.clone(),
+        credential: Credential::Certificate(f.certificate.clone()),
+    })
+    .await?;
     let (_, mut events) = client.open_desktop(0, true).await?;
-    assert!(matches!(desktop_event(&mut events).await?, DesktopEvent::Opened { control: true, .. }));
+    assert!(matches!(
+        desktop_event(&mut events).await?,
+        DesktopEvent::Opened { control: true, .. }
+    ));
     Ok(())
 }
 async fn output_until(events: &mut mpsc::Receiver<TerminalEvent>, needle: &str) -> Result<String> {
@@ -188,9 +260,7 @@ async fn output_until(events: &mut mpsc::Receiver<TerminalEvent>, needle: &str) 
 }
 async fn assert_shell(client: &AccessClient, marker: &str) -> Result<()> {
     let (id, mut events) = client.open_terminal(110, 35).await?;
-    client
-        .write(&id, &shell_output("proof", marker))
-        .await?;
+    client.write(&id, &shell_output("proof", marker)).await?;
     output_until(&mut events, &format!("proof:{marker}")).await?;
     client.close_terminal(&id).await?;
     Ok(())

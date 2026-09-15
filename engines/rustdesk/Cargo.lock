@@ -1552,11 +1552,8 @@ dependencies = [
 [[package]]
 name = "libxdo-sys"
 version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db23b9e7e2b7831bbd8aac0bbeeeb7b68cbebc162b227e7052e8e55829a09212"
 dependencies = [
- "libc",
- "x11 2.21.0",
+ "hbb_common",
 ]
 
 [[package]]
